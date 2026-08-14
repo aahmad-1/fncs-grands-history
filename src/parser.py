@@ -33,10 +33,9 @@ def get_liquipedia_id(player_tag):
 
 
 def get_region_from_url(url):
-    if re.search(r'/North_America$', url):
-        return "NAC"
+    region = url.split("/")[-1]
     for abbreviation, url_part in REGION_URL_PARTS.items():
-        if url_part in url:
+        if region in url_part:
             return abbreviation
     return "Global"
 

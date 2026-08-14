@@ -28,7 +28,7 @@ def run():
                 continue
 
             placements = extract_placements(html_text)
-            metadata = extract_metadata(html_text, base_url)
+            metadata = extract_metadata(html_text, f'{base_url}/{region}')
 
             save_to_csv(placements, metadata, folder_name, csv_filename)
 

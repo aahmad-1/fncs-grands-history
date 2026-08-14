@@ -13,7 +13,7 @@ OUTPUT_DIR = "data/cleaned"
 
 # regions to scrape - remove/add regions as needed
 REGIONS = [
-            "North_America_East", 
+            # "North_America_East", 
            "North_America_West", 
            "North_America_Central", 
            "North_America", 
@@ -37,7 +37,8 @@ REGION_URL_PARTS = {
 
 # base FNCS Grand Finals urls - add/remove urls to control what gets scraped
 LIQUIPEDIA_URLS = [
-    "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2025/Major_2",
-    "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2025/Major_3",
-    "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2024"
+    "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2025/Major_1",
+    # "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2025/Major_2",
+    # "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2025/Major_3",
+    # "https://liquipedia.net/fortnite/Fortnite_Champion_Series/2024"
 ]

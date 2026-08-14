@@ -24,6 +24,25 @@ def create_folder_name(url):
     raise ValueError(f"No matching pattern for: {url}")
 
 
+# NOTE: NA region splits have changed multiple times (NAE/NAW -> merged NAC -> NAC/NAW).
+# if Epic changes NA region structure again, will add a new elif tier here with the
+# chapter/major it started, following the same (chapter, major) <= pattern.
+def get_valid_na_regions(url):
+    m = re.search(r'(\d{4})/Major_(\d+)', url)
+    if m:
+        chapter, major = int(m[1]) - 2019, int(m[2])
+    else:
+        m = re.search(r'Chapter_(\d+)/Season_(\d+)', url)
+        chapter, major = (int(m[1]), int(m[2])) if m else (0, 0)
+
+    if (chapter, major) <= (4, 1):
+        return ["North_America_East", "North_America_West"]
+    elif (chapter, major) <= (5, 3):
+        return ["North_America"]
+    else:
+        return ["North_America_Central", "North_America_West"]
+
+
 def get_liquipedia_id(player_tag):
     name = player_tag.get_text()
     href = player_tag.get("href")
@@ -35,9 +54,20 @@ def get_liquipedia_id(player_tag):
 def get_region_from_url(url):
     region = url.split("/")[-1]
     for abbreviation, url_part in REGION_URL_PARTS.items():
-        if region in url_part:
+        if region in url_part or any(region in part for part in url_part) if isinstance(url_part, list) else region in url_part: # oh my god
             return abbreviation
     return "Global"
+
+def detect_gamemode(players_wrapper):
+    team_size = len(players_wrapper.find_all("div", recursive=False))
+    if team_size == 1:
+        return "Solos", 100
+    elif team_size == 2:
+        return "Duos", 50
+    elif team_size == 3:
+        return "Trios", 33
+    else:
+        return "Squads", 25
 
 def extract_placements(html_text):
     soup = BeautifulSoup(html_text, "html.parser")
@@ -47,14 +77,7 @@ def extract_placements(html_text):
     players_wrapper = team1.find("div")
     max = 0
     
-    if len(players_wrapper) == 1:
-        max = 100
-    elif len(players_wrapper) == 2:
-        max = 50
-    elif len(players_wrapper) == 3:
-        max = 33
-    else:
-        max = 25
+    gamemode, max = detect_gamemode(players_wrapper)
 
     rows = []
     placement = 0
@@ -93,18 +116,7 @@ def extract_metadata(html_text, url):
     team1 = table_body.find("td", class_="prizepooltable-col-team")
     players_wrapper = team1.find("div")
     
-    if len(players_wrapper) == 1:
-        max_teams = 100
-        gamemode = "Solos"
-    elif len(players_wrapper) == 2:
-        max_teams = 50
-        gamemode = "Duos"
-    elif len(players_wrapper) == 3:
-        max_teams = 33
-        gamemode = "Trios"
-    else:
-        max_teams = 25
-        gamemode = "Squads"
+    gamemode, max_teams = detect_gamemode(players_wrapper)
 
     total_teams = 0
     for table_entry in table_body.find_all("tr", class_="table2__row--body"):
@@ -116,7 +128,7 @@ def extract_metadata(html_text, url):
     for row in right_box.find_all("div", recursive=False):
         if row.div.get_text() == "Start Date:":
             start_date = row.find_all("div")[1].get_text()
-            end_date = row.next_sibling("div")[1].get_text()
+            end_date = row.find_next_sibling("div").find_all("div")[1].get_text()
         elif row.div.get_text() == "Date:":
             start_date = end_date = row.find_all("div")[1].get_text()
         else:

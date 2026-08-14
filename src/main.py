@@ -1,16 +1,16 @@
-from config import LIQUIPEDIA_URLS, REGIONS
+from config import LIQUIPEDIA_URLS, NON_NA_REGIONS
 from scraper import fetch_page
-from parser import create_folder_name, extract_placements, extract_metadata
+from parser import create_folder_name, get_valid_na_regions, extract_placements, extract_metadata
 from utils import csv_exists, build_csv_filename, save_to_csv
 
 
 def run():
     for base_url in LIQUIPEDIA_URLS:
         page_param = base_url.replace("https://liquipedia.net/fortnite/", "")
-        folder_name = create_folder_name(base_url) #C6_M2
+        folder_name = create_folder_name(base_url)
 
         is_global = folder_name.startswith("Globals")
-        regions_to_scrape = ["Global"] if is_global else REGIONS
+        regions_to_scrape = ["Global"] if is_global else get_valid_na_regions(base_url) + NON_NA_REGIONS
 
         for region in regions_to_scrape:
             csv_filename = build_csv_filename(folder_name, region)

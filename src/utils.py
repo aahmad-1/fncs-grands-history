@@ -14,6 +14,7 @@ def build_csv_filename(folder_name, region):
     for abbreviation, url_part in REGION_URL_PARTS.items():
         if region in url_part:
             return f"{folder_name}_{abbreviation}.csv"
+    raise ValueError(f"No matching region abbreviation for: {region}")
 
 def save_to_csv(placements, metadata, folder_name, csv_filename):
     folder_path = os.path.join(OUTPUT_DIR, folder_name)

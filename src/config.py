@@ -23,8 +23,8 @@ NON_NA_REGIONS = [
 # and update get_valid_na_regions() in parser.py to match
 REGION_URL_PARTS = {
     "NAC": ["North_America_Central", "North_America"],
-    "NAE": ["North_America_East"],
-    "NAW": ["North_America_West"],
+    "NAE": ["North_America_East", "NAE"],
+    "NAW": ["North_America_West", "NAW"],
     "EU": ["Europe"],
     "BR": ["Brazil"],
     "AS": ["Asia"],

@@ -28,6 +28,9 @@ def create_folder_name(url):
 # if Epic changes NA region structure again, will add a new elif tier here with the
 # chapter/major it started, following the same (chapter, major) <= pattern.
 def get_valid_na_regions(url):
+    if "All-Star" in url: # all star doesn't use North_American_East/West for some reason
+        return ["NAE", "NAW"]
+    
     m = re.search(r'(\d{4})/Major_(\d+)', url)
     if m:
         chapter, major = int(m[1]) - 2019, int(m[2])

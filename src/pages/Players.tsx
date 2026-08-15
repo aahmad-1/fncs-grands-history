@@ -7,30 +7,63 @@ interface Player {
     display_name: string
 }
 
+// some players share the same display name but have different liquipedia id's
+// if that happens, swap their name for their id instead
+// so the user can actually tell them apart in the search results
+const differentiateDisplayNames = (players: Player[]): Player[] => {
+    const nameCounts = new Map<string, number>()
+    players.forEach((p) => {
+        nameCounts.set(p.display_name, (nameCounts.get(p.display_name) ?? 0) + 1)
+    })
+
+    return players.map((p) => {
+        if ((nameCounts.get(p.display_name) ?? 0) > 1) {
+            const cleanId = p.liquipedia_id.replace('/fortnite/', '').replace(/_/g, ' ')
+            return { ...p, display_name: cleanId }
+        }
+        return p
+    })
+}
+
 const Players = () => {
     const [query, setQuery] = useState<string>('')
     const [results, setResults] = useState<Player[]>([])
 
     useEffect(() => {
+        // don't bother querying supabase until the user actually typed something useful
         if (query.length < 2) {
             setResults([])
             return
         }
 
-        const searchPlayers = async () => {
-            const { data, error } = await supabase
+    const searchPlayers = async () => {
+        // searches current names and pat/alias names at same time
+        const [nameMatches, aliasMatches] = await Promise.all([
+            supabase
                 .from('players')
                 .select('liquipedia_id, display_name')
                 .ilike('display_name', `%${query}%`)
+                .limit(10),
+            supabase
+                .from('player_aliases')
+                .select('player_id, players(liquipedia_id, display_name)')
+                .ilike('display_name', `%${query}%`)
                 .limit(10)
+        ])
 
-            if (error) {
-                console.error(error)
-                return
-            }
+        const combined = [
+            ...(nameMatches.data ?? []),
+            ...(aliasMatches.data ?? []).map((a: any) => a.players)
+        ]
 
-            setResults(data)
-        }
+        // a player could technically match both queries (old name AND current name both contain the search term)
+        // uniquePlayers filter by liquipedia id to prevent this display duplication
+        const uniquePlayers = Array.from(
+            new Map(combined.map((p) => [p.liquipedia_id, p])).values()
+        )
+
+        setResults(differentiateDisplayNames(uniquePlayers.slice(0, 10)))
+    }
 
         searchPlayers()
     }, [query])
@@ -47,7 +80,7 @@ const Players = () => {
             <ul>
                 {results.map((player) => (
                     <li key={player.liquipedia_id}>
-                        <Link to={`/players/${encodeURIComponent(player.liquipedia_id)}`}>
+                        <Link to={`/players/${encodeURIComponent(player.liquipedia_id.replace('/fortnite/', ''))}`}>
                             {player.display_name}
                         </Link>
                     </li>

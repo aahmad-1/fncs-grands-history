@@ -31,7 +31,18 @@ CREATE TABLE placement_players (
     PRIMARY KEY (placement_id, player_id)
 );
 
+CREATE TABLE player_aliases (
+    player_id TEXT REFERENCES players(liquipedia_id),
+    display_name TEXT NOT NULL,
+    PRIMARY KEY (player_id, display_name)
+);
+
+ALTER TABLE player_aliases ENABLE ROW LEVEL SECURITY;
+
+-- letting anyone read this data (its public fortnite stats) but blocking
+-- any inserts/updates/deletes unless connecting with the db password directly
 CREATE POLICY "Public read access" ON players FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON tournaments FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON placements FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON placement_players FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON player_aliases FOR SELECT USING (true);

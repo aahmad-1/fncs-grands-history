@@ -1,6 +1,6 @@
 import os
 import csv
-from config import OUTPUT_DIR, REGION_URL_PARTS
+from scraper.config import OUTPUT_DIR, REGION_URL_PARTS
 
 
 def csv_exists(folder_name, csv_filename):

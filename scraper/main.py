@@ -1,7 +1,7 @@
-from config import LIQUIPEDIA_URLS, NON_NA_REGIONS
-from scraper import fetch_page
-from parser import create_folder_name, get_valid_na_regions, extract_placements, extract_metadata
-from utils import csv_exists, build_csv_filename, save_to_csv
+from scraper.config import LIQUIPEDIA_URLS, NON_NA_REGIONS
+from scraper.scraper import fetch_page
+from scraper.parser import create_folder_name, get_valid_na_regions, extract_placements, extract_metadata
+from scraper.utils import csv_exists, build_csv_filename, save_to_csv
 
 
 def run():

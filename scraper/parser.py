@@ -1,6 +1,6 @@
 import re
 from bs4 import BeautifulSoup
-from config import REGION_URL_PARTS
+from scraper.config import REGION_URL_PARTS
 
 URL_PATTERNS = [
     (r'Season_X', lambda m: 'Season X'),

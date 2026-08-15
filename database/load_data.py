@@ -86,17 +86,13 @@ def run():
     conn = connect_db()
     cur = conn.cursor()
 
-    test_folder = os.path.join(CLEANED_DIR, "Globals_2023")   # testing one folder first before all
-    csv_paths = [os.path.join(test_folder, f) for f in os.listdir(test_folder) if f.endswith(".csv")]   # hopefully this works
-
-    for csv_path in csv_paths:
+    for csv_path in get_all_csv_paths():
         load_csv(cur, csv_path)
 
     conn.commit()
     cur.close()
     conn.close()
     print("All CSVs loaded.")
-
 
 if __name__ == "__main__":
     run()

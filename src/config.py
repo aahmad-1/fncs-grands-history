@@ -1,6 +1,6 @@
 BASE_URL = "https://liquipedia.net/fortnite/api.php"
 
-USER_AGENT = "FNCSResearch/1.0 (ahmad.paturusi@student.lut.fi)"
+USER_AGENT = "FNCSResearch/1.0 (https://github.com/aahmad-1/fncs-grands-history)"
 
 HEADERS = {
     "User-Agent": USER_AGENT,

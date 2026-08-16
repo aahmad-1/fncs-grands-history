@@ -79,16 +79,10 @@ def extract_placements(html_text):
     table_body = table.find("tbody")
     team1 = table_body.find("td", class_="prizepooltable-col-team")
     players_wrapper = team1.find("div")
-    max = 0
-    
-    gamemode, max = detect_gamemode(players_wrapper)
 
     rows = []
     placement = 0
     for table_entry in table_body.find_all("tr", class_="table2__row--body"):
-
-        if placement == max:
-            return rows
         
         player_names = []
         liquipedia_ids = []

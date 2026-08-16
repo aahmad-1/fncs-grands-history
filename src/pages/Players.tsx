@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import type { AliasMatch } from '../types/player'
 
 interface Player {
     liquipedia_id: string
@@ -53,7 +54,7 @@ const Players = () => {
 
         const combined = [
             ...(nameMatches.data ?? []),
-            ...(aliasMatches.data ?? []).map((a: any) => a.players)
+            ...((aliasMatches.data ?? []) as unknown as AliasMatch[]).map((a) => a.players)
         ]
 
         // a player could technically match both queries (old name AND current name both contain the search term)

@@ -1,6 +1,6 @@
 import os
 import csv
-from scraper.config import OUTPUT_DIR, REGION_URL_PARTS
+from config import OUTPUT_DIR, REGION_URL_PARTS
 
 
 def csv_exists(folder_name, csv_filename):
@@ -51,4 +51,4 @@ def save_to_csv(placements, metadata, folder_name, csv_filename):
 if __name__ == "__main__":
     assert build_csv_filename("Globals_2023", "Global") == "Globals_2023.csv"
     assert build_csv_filename("Season_X", "NAE") == "Season_X_NAE.csv"
-    print("All utils tests passed.")
+    print("Good")

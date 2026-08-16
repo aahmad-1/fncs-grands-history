@@ -32,7 +32,7 @@ REGION_URL_PARTS = {
     "ME": ["Middle_East"]
 }
 
-# base FNCS Grand Finals urls - add/remove urls to control what gets scraped
+# base FNCS Grand Finals urls as of 16/8/26. Will add more url's as more FNCS's finnish.
 LIQUIPEDIA_URLS = [
     "https://liquipedia.net/fortnite/Fortnite_Champion_Series/Season_X/Grand_Finals",
     "https://liquipedia.net/fortnite/Fortnite_Champion_Series/Chapter_2/Season_1/Grand_Finals",

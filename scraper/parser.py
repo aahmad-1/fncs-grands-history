@@ -1,6 +1,6 @@
 import re
 from bs4 import BeautifulSoup
-from scraper.config import REGION_URL_PARTS
+from config import REGION_URL_PARTS
 
 URL_PATTERNS = [
     (r'Season_X', lambda m: 'Season X'),
@@ -50,7 +50,8 @@ def get_liquipedia_id(player_tag):
     name = player_tag.get_text()
     href = player_tag.get("href")
     if "redlink=1" in href:
-        return f"/fortnite/{name.replace(' ', '_')}"
+        title = href.split("title=")[1].split("&action=")[0]
+        return f"/fortnite/{title}"
     return href
 
 

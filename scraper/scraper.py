@@ -1,6 +1,6 @@
 import requests
 import time
-from scraper.config import BASE_URL, HEADERS, SLEEP_SECONDS
+from config import BASE_URL, HEADERS, SLEEP_SECONDS
 
 
 def fetch_page(page_param):

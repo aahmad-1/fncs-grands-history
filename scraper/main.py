@@ -1,7 +1,7 @@
-from scraper.config import LIQUIPEDIA_URLS, NON_NA_REGIONS
-from scraper.scraper import fetch_page
-from scraper.parser import create_folder_name, get_valid_na_regions, extract_placements, extract_metadata
-from scraper.utils import csv_exists, build_csv_filename, save_to_csv
+from config import LIQUIPEDIA_URLS, NON_NA_REGIONS
+from scraper import fetch_page
+from parser import create_folder_name, get_valid_na_regions, extract_placements, extract_metadata
+from utils import csv_exists, build_csv_filename, save_to_csv
 
 
 def run():
@@ -29,7 +29,6 @@ def run():
 
             placements = extract_placements(html_text)
             metadata = extract_metadata(html_text, base_url if is_global else f'{base_url}/{region}')
-
             save_to_csv(placements, metadata, folder_name, csv_filename)
 
         print(f"Finished scraping all region leaderboards for {folder_name.replace("_", " ")}\n")

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
-import type { RawPlacementPlayerRow, PlacementRow } from '../types/player'
+import type { RawPlacementPlayerRow, PlacementRow, TournamentSummary } from '../types/player'
 
 // sets any dates shown to whatever date format the user's device is set to
 const formatDate = (dateStr: string): string => {
@@ -75,7 +75,38 @@ const PlayerProfile = () => {
             // sort oldest to newest so the table reads left to right chronologically
             rows.sort((a, b) => a.start_date.localeCompare(b.start_date))
 
-            setPlacements(rows)
+            // grabbing every tourney ever to figure out which ones a player missed
+            const { data: allTournaments } = await supabase
+                .from('tournaments')
+                .select('name, gamemode, start_date, end_date')
+
+            // same event name shows up once per region, so only need one entry per event to check if a player qualed or not
+            const uniqueEvents = Array.from(
+                new Map((allTournaments ?? []).map((t) => [t.name, t as TournamentSummary])).values()
+            )
+
+            const playedEventNames = new Set(rows.map((r) => r.tournament_name))
+
+            const dnqRows: PlacementRow[] = uniqueEvents
+                .filter((event) => !playedEventNames.has(event.name))
+                .map((event) => ({
+                    tournament_name: event.name,
+                    gamemode: event.gamemode,
+                    region: '-',
+                    start_date: event.start_date,
+                    end_date: event.end_date,
+                    total_teams: 0,
+                    max_teams: 0,
+                    placement: -1,
+                    earnings: 0,
+                    teammates: [],
+                    earningsPerPlayer: 0
+                }))
+
+            const allRows = [...rows, ...dnqRows]
+            allRows.sort((a, b) => a.start_date.localeCompare(b.start_date))
+
+            setPlacements(allRows)
             setLoading(false)
         }
 
@@ -117,7 +148,7 @@ const PlayerProfile = () => {
                             <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Teammates</th>
                             {placements.map((p) => (
                                 <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
-                                    {p.teammates.length > 0
+                                    {p.placement === -1 ? '-' : p.teammates.length > 0
                                         ? p.teammates.map((teammate, i) => (
                                             <span key={teammate.liquipedia_id}>
                                                 <Link to={`/players/${encodeURIComponent(teammate.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
@@ -133,27 +164,30 @@ const PlayerProfile = () => {
                         <tr>
                             <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Placement</th>
                             {placements.map((p) => {
+                                // DNQ covers two cases: never played the qualifiers/heats at all, or played them but didnt qualify
+                                // tracking which one happened would mean scraping qualifiers too, and that format changes almost every chapter, so not worth it for now
                                 // some FNCS lans (2023 globals, C7M1 summit) had more teams qualify/invited than the amount that could actually fit in the lobby game
-                                // those extra teams that never made the finals from lower bracket still earned money
-                                const isDNP = p.placement > p.max_teams
+                                // those extra teams that never made the finals from lower bracket still earned money, thats what DNP is for
+                                const isDNQ = p.placement === -1
+                                const isDNP = !isDNQ && p.placement > p.max_teams
                                 return (
                                     <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 font-semibold">
-                                        {isDNP ? 'DNP' : p.placement}
+                                        {isDNQ ? 'DNQ' : isDNP ? 'DNP' : p.placement}
                                     </td>
                                 )
                             })}
                         </tr>
                         <tr>
                             <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Earnings</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">${Math.round(p.earningsPerPlayer).toLocaleString()}</td>)}
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : `$${Math.round(p.earningsPerPlayer).toLocaleString()}`}</td>)}
                         </tr>
                         <tr>
                             <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Region</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.region}</td>)}
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : p.region}</td>)}
                         </tr>
                         <tr>
                             <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Total Teams</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.total_teams}</td>)}
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : p.total_teams}</td>)}
                         </tr>
                     </tbody>
                 </table>

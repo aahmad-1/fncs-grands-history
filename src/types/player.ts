@@ -46,3 +46,10 @@ export interface AliasMatch {
     player_id: string
     players: TeammateInfo
 }
+
+export interface TournamentSummary {
+    name: string
+    gamemode: string
+    start_date: string
+    end_date: string
+}

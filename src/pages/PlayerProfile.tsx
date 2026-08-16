@@ -13,6 +13,11 @@ interface PlacementRow {
     earnings: number
 }
 
+// sets any dates shown to whatever date format the user's device is set to
+const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString()
+}
+
 const PlayerProfile = () => {
     const { playerId } = useParams<{ playerId: string }>()
     const [playerName, setPlayerName] = useState<string>('')
@@ -72,45 +77,53 @@ const PlayerProfile = () => {
     if (loading) return <p>Loading...</p>
 
     return (
-        <div>
-            <h1>{playerName}</h1>
+        <div className="p-6">
+            <h1 className="text-3xl font-bold mb-4">{playerName}</h1>
 
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Event</th>
-                        {placements.map((p) => <td key={p.tournament_name}>{p.tournament_name}</td>)}
-                    </tr>
-                    <tr>
-                        <th>Date</th>
-                        {placements.map((p) => (
-                            <td key={p.tournament_name}>
-                                {p.start_date === p.end_date ? p.start_date : `${p.start_date} - ${p.end_date}`}
-                            </td>
-                        ))}
-                    </tr>
-                    <tr>
-                        <th>Gamemode</th>
-                        {placements.map((p) => <td key={p.tournament_name}>{p.gamemode}</td>)}
-                    </tr>
-                    <tr>
-                        <th>Placement</th>
-                        {placements.map((p) => <td key={p.tournament_name}>{p.placement}</td>)}
-                    </tr>
-                    <tr>
-                        <th>Earnings</th>
-                        {placements.map((p) => <td key={p.tournament_name}>${p.earnings.toLocaleString()}</td>)}
-                    </tr>
-                    <tr>
-                        <th>Region</th>
-                        {placements.map((p) => <td key={p.tournament_name}>{p.region}</td>)}
-                    </tr>
-                    <tr>
-                        <th>Total Teams</th>
-                        {placements.map((p) => <td key={p.tournament_name}>{p.total_teams}</td>)}
-                    </tr>
-                </tbody>
-            </table>
+            <div className="overflow-x-auto">
+                <table className="border-collapse border border-gray-700 text-sm">
+                    <tbody>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Event</th>
+                            {placements.map((p) => (
+                                <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
+                                    {p.tournament_name.replace(/_/g, ' ')}
+                                </td>
+                            ))}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Date</th>
+                            {placements.map((p) => (
+                                <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
+                                    {p.start_date === p.end_date
+                                        ? formatDate(p.start_date)
+                                        : `${formatDate(p.start_date)} - ${formatDate(p.end_date)}`}
+                                </td>
+                            ))}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Gamemode</th>
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.gamemode}</td>)}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Placement</th>
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 font-semibold">{p.placement}</td>)}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Earnings</th>
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">${p.earnings.toLocaleString()}</td>)}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Region</th>
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.region}</td>)}
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Total Teams</th>
+                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.total_teams}</td>)}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }

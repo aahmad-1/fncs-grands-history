@@ -7,7 +7,7 @@ URL_PATTERNS = [
     (r'Chapter_(\d+)/Season_(\d+)', lambda m: f'C{m[1]}S{m[2]}'),
     (r'Invitational/Grand_Finals$', lambda m: 'C2S2 Invitationals'),
     (r'Grand_Royale$', lambda m: 'Grand Royale'),
-    (r'All-Star_Showdown', lambda m: 'Solo All Star'),
+    (r'All-Star_Showdown', lambda m: 'All Star Showdown'),
     (r'(\d{4})/Major_(\d+)/Summit', lambda m: f'Globals C{int(m[1])-2019}M{m[2]} Summit'),
     (r'(\d{4})(?!/Major_|/Grand_)', lambda m: f'Globals {m[1]}'),
     (r'(\d{4})/Major_(\d+)', lambda m: f'C{int(m[1])-2019}M{m[2]}'),

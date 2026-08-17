@@ -70,7 +70,7 @@ const Players = () => {
     }, [query])
 
     return (
-        <div>
+        <div className="flex flex-col items-center text-center">
             <h1>Search an FNCS Grands Finalist</h1>
             <input
                 type="text"

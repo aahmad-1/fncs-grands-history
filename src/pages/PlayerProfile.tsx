@@ -13,7 +13,7 @@ const PlayerProfile = () => {
     const [playerName, setPlayerName] = useState<string>('')
     const [placements, setPlacements] = useState<PlacementRow[]>([])
     const [loading, setLoading] = useState<boolean>(true)
-    const [isVertical, setIsVertical] = useState(false)
+    const [isHorizontal, setIsHorizontal] = useState(false)
 
     // states for filters
     const [visibleRows, setVisibleRows] = useState({
@@ -29,6 +29,8 @@ const PlayerProfile = () => {
     )
     const [qualifiedOnly, setQualifiedOnly] = useState(false)
     const [minPlacement, setMinPlacement] = useState<string>('')
+    const [dateFrom, setDateFrom] = useState<string>('')
+    const [dateTo, setDateTo] = useState<string>('')
     
 
     useEffect(() => {
@@ -131,15 +133,34 @@ const PlayerProfile = () => {
         fetchPlayerData()
     }, [playerId])
 
-    if (loading) return <p>Loading...</p>
+    if (loading) return <p className="text-center">Loading...</p>
 
     // applying all the checkbox/input filters on top of the full placements list before rendering
     const filteredPlacements = placements.filter((p) => {
         if (!gamemodeFilter.has(p.gamemode)) return false
         if (qualifiedOnly && p.placement === -1) return false
         if (minPlacement && p.placement !== -1 && p.placement > Number(minPlacement)) return false
+        if (dateFrom && p.start_date < dateFrom) return false
+        if (dateTo && p.start_date > dateTo) return false
         return true
     })
+
+    // only counting placements that actually happened (not DNQ/DNP), and only from whats currently visible after filters
+    const scoredPlacements = filteredPlacements.filter((p) => p.placement !== -1 && p.placement <= p.max_teams)
+
+    const calculateAverage = (gamemode?: string) => {
+        const relevant = gamemode
+            ? scoredPlacements.filter((p) => p.gamemode === gamemode)
+            : scoredPlacements
+
+        if (relevant.length === 0) return '-'
+
+        const total = relevant.reduce((sum, p) => sum + p.placement, 0)
+        return (total / relevant.length).toFixed(1)
+    }
+
+    const totalEarnings = filteredPlacements.reduce((sum, p) => sum + (p.placement === -1 ? 0 : p.earningsPerPlayer), 0)
+    const eventsQualified = filteredPlacements.filter((p) => p.placement !== -1).length
 
     // one definition per stat row thats reused for both the horizontal & vertical table layouts
     // makes it so we only write each cell's logic once
@@ -176,96 +197,114 @@ const PlayerProfile = () => {
     const rowDefinitions = getRowDefinitions().filter((r) => r.alwaysShow || r.show)
 
     return (
-        <div className="p-6">
-            <Link to="/players" className="block text-left text-blue-400 hover:underline text-sm">← Back to search</Link>
-            <h1 className="text-3xl font-bold mb-4">{playerName}</h1>
-
-            <div className="mb-4 flex flex-wrap gap-4 text-sm">
-                <div>
-                    <span className="font-semibold mr-2">Gamemode:</span>
-                    {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
-                        <label key={mode} className="mr-3">
-                            <input type="checkbox" checked={gamemodeFilter.has(mode)}
-                                onChange={() => {
-                                    const updated = new Set(gamemodeFilter)
-                                    updated.has(mode) ? updated.delete(mode) : updated.add(mode)
-                                    setGamemodeFilter(updated)
-                                }}
-                            />{' '}{mode}
-                        </label>
-                    ))}
-                </div>
-
-                <label>
-                    <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
-                    Qualified for only
-                </label>
-
-                <label>
-                    Min placement:{' '}
-                    <input
-                        type="number"
-                        value={minPlacement}
-                        onChange={(e) => setMinPlacement(e.target.value)}
-                        className="w-16 bg-gray-800 border border-gray-700 px-1"
-                    />
-                </label>
-
-                <div>
-                    <span className="font-semibold mr-2">Show rows:</span>
-                    {Object.entries(visibleRows).map(([key, value]) => (
-                        <label key={key} className="mr-3">
-                            <input
-                                type="checkbox"
-                                checked={value}
-                                onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
-                            />{' '}{key}
-                        </label>
-                    ))}
-                </div>
+        <div className="flex h-screen">
+            <div className="flex flex-col items-center w-64 shrink-0 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-hidden">
+                <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
+                <h1 className="text-2xl font-bold">{playerName}</h1>
+                <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
+                <p>Grands Qualified For: {eventsQualified}</p>
+                <p>Average Placement: {calculateAverage()}</p>
+                <p>Average Solos: {calculateAverage('Solos')}</p>
+                <p>Average Duos: {calculateAverage('Duos')}</p>
+                <p>Average Trios: {calculateAverage('Trios')}</p>
+                <p>Average Squads: {calculateAverage('Squads')}</p>
+                <p>Total Earnings: ${Math.round(totalEarnings).toLocaleString()}</p>
             </div>
 
-            <button
-                onClick={() => setIsVertical(!isVertical)}
-                className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm mb-4"
-            >
-                Flip to {isVertical ? 'Horizontal' : 'Vertical'}
-            </button>
+            <div className="flex-1 overflow-y-auto p-6">
 
-            <div className="overflow-x-auto">
-                {isVertical ? (
-                    <table className="border-collapse border border-gray-700 text-sm">
-                        <thead>
-                            <tr>
+                <div className="mb-4 flex flex-wrap gap-4 text-sm">
+                    <div>
+                        <span className="font-semibold mr-2">Gamemode:</span>
+                        {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
+                            <label key={mode} className="mr-3">
+                                <input type="checkbox" checked={gamemodeFilter.has(mode)}
+                                    onChange={() => {
+                                        const updated = new Set(gamemodeFilter)
+                                        updated.has(mode) ? updated.delete(mode) : updated.add(mode)
+                                        setGamemodeFilter(updated)
+                                    }}
+                                />{' '}{mode}
+                            </label>
+                        ))}
+                    </div>
+
+                    <label>
+                        <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
+                        Qualified for only
+                    </label>
+
+                    <label>
+                        Min placement:{' '}
+                        <input
+                            type="number"
+                            value={minPlacement}
+                            onChange={(e) => setMinPlacement(e.target.value)}
+                            className="w-16 bg-gray-800 border border-gray-700 px-1"
+                        />
+                    </label>
+
+                    <div>
+                        <span className="font-semibold mr-2">Show rows:</span>
+                        {Object.entries(visibleRows).map(([key, value]) => (
+                            <label key={key} className="mr-3">
+                                <input
+                                    type="checkbox"
+                                    checked={value}
+                                    onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
+                                />{' '}{key}
+                            </label>
+                        ))}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                        <label>From: <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="bg-gray-800 border border-gray-700 px-1" /></label>
+                        <label>To: <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="bg-gray-800 border border-gray-700 px-1" /></label>
+                        <button onClick={() => { setDateFrom(''); setDateTo('') }} className="bg-gray-800 border border-gray-700 px-2 py-1 rounded text-xs">Reset dates</button>
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => setIsHorizontal(!isHorizontal)}
+                    className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm mb-4"
+                >
+                    Flip to {isHorizontal ? 'Vertical' : 'Horizontal'}
+                </button>
+
+                <div className="overflow-x-auto">
+                    {isHorizontal ? (
+                        <table className="border-collapse border border-gray-700 text-sm">
+                            <tbody>
                                 {rowDefinitions.map((row) => (
-                                    <th key={row.key} className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center">{row.label}</th>
+                                    <tr key={row.key}>
+                                        <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0">{row.label}</th>
+                                        {filteredPlacements.map((p) => (
+                                            <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap text-center">{row.render(p)}</td>
+                                        ))}
+                                    </tr>
                                 ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredPlacements.map((p) => (
-                                <tr key={p.tournament_name}>
+                            </tbody>
+                        </table>
+                    ) : (
+                        <table className="border-collapse border border-gray-700 text-sm">
+                            <thead>
+                                <tr>
                                     {rowDefinitions.map((row) => (
-                                        <td key={row.key} className="border border-gray-700 px-3 py-2 whitespace-nowrap">{row.render(p)}</td>
+                                        <th key={row.key} className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center">{row.label}</th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <table className="border-collapse border border-gray-700 text-sm">
-                        <tbody>
-                            {rowDefinitions.map((row) => (
-                                <tr key={row.key}>
-                                    <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0">{row.label}</th>
-                                    {filteredPlacements.map((p) => (
-                                        <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">{row.render(p)}</td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                            </thead>
+                            <tbody>
+                                {filteredPlacements.map((p) => (
+                                    <tr key={p.tournament_name}>
+                                        {rowDefinitions.map((row) => (
+                                            <td key={row.key} className="border border-gray-700 px-3 py-2 whitespace-nowrap text-center">{row.render(p)}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
         </div>
     )

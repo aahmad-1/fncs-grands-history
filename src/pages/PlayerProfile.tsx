@@ -13,6 +13,23 @@ const PlayerProfile = () => {
     const [playerName, setPlayerName] = useState<string>('')
     const [placements, setPlacements] = useState<PlacementRow[]>([])
     const [loading, setLoading] = useState<boolean>(true)
+    const [isVertical, setIsVertical] = useState(false)
+
+    // states for filters
+    const [visibleRows, setVisibleRows] = useState({
+        placement: true,
+        earnings: true,
+        region: true,
+        teammates: true,
+        totalTeams: true
+    })
+
+    const [gamemodeFilter, setGamemodeFilter] = useState<Set<string>>(
+        new Set(['Solos', 'Duos', 'Trios', 'Squads'])
+    )
+    const [qualifiedOnly, setQualifiedOnly] = useState(false)
+    const [minPlacement, setMinPlacement] = useState<string>('')
+    
 
     useEffect(() => {
         const fetchPlayerData = async () => {
@@ -87,6 +104,7 @@ const PlayerProfile = () => {
 
             const playedEventNames = new Set(rows.map((r) => r.tournament_name))
 
+            // building a fake placement entry for every event a player never showed up in, so the table can display DNQ for them
             const dnqRows: PlacementRow[] = uniqueEvents
                 .filter((event) => !playedEventNames.has(event.name))
                 .map((event) => ({
@@ -115,82 +133,139 @@ const PlayerProfile = () => {
 
     if (loading) return <p>Loading...</p>
 
+    // applying all the checkbox/input filters on top of the full placements list before rendering
+    const filteredPlacements = placements.filter((p) => {
+        if (!gamemodeFilter.has(p.gamemode)) return false
+        if (qualifiedOnly && p.placement === -1) return false
+        if (minPlacement && p.placement !== -1 && p.placement > Number(minPlacement)) return false
+        return true
+    })
+
+    // one definition per stat row thats reused for both the horizontal & vertical table layouts
+    // makes it so we only write each cell's logic once
+    const getRowDefinitions = () => [
+        { key: 'event', label: 'Event', alwaysShow: true, render: (p: PlacementRow) => p.tournament_name.replace(/_/g, ' ') },
+        { key: 'date', label: 'Date', alwaysShow: true, render: (p: PlacementRow) =>
+            p.start_date === p.end_date ? formatDate(p.start_date) : `${formatDate(p.start_date)} - ${formatDate(p.end_date)}` },
+        { key: 'gamemode', label: 'Gamemode', alwaysShow: true, render: (p: PlacementRow) => p.gamemode },
+        { key: 'teammates', label: 'Teammates', alwaysShow: false, show: visibleRows.teammates, render: (p: PlacementRow) =>
+            p.placement === -1 ? '-' : p.teammates.length > 0
+                ? p.teammates.map((teammate, i) => (
+                    <span key={teammate.liquipedia_id}>
+                        <Link to={`/players/${encodeURIComponent(teammate.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
+                            {teammate.display_name}
+                        </Link>
+                        {i < p.teammates.length - 1 ? ', ' : ''}
+                    </span>
+                ))
+                : '-' },
+        { key: 'placement', label: 'Placement', alwaysShow: false, show: visibleRows.placement, render: (p: PlacementRow) =>
+            // DNQ covers two cases: never played the qualifiers/heats at all, or played them but didnt qualify
+            // tracking which one happened would mean scraping the qualifiers and heats leaderboards too, but the tournament format isn't always the same, and it's a bunch of links and a hassle to impliment
+            // some FNCS lans (2023 globals, C7M1 summit) had more teams qualify/invited than the amount that could actually fit in the lobby game
+            // those extra teams that never made the finals from lower bracket still earned money, thats what DNP is for
+            p.placement === -1 ? 'DNQ' : p.placement > p.max_teams ? 'DNP' : p.placement },
+        { key: 'earnings', label: 'Earnings', alwaysShow: false, show: visibleRows.earnings, render: (p: PlacementRow) =>
+            p.placement === -1 ? '-' : `$${Math.round(p.earningsPerPlayer).toLocaleString()}` },
+        { key: 'region', label: 'Region', alwaysShow: false, show: visibleRows.region, render: (p: PlacementRow) =>
+            p.placement === -1 ? '-' : p.region },
+        { key: 'totalTeams', label: 'Total Teams', alwaysShow: false, show: visibleRows.totalTeams, render: (p: PlacementRow) =>
+            p.placement === -1 ? '-' : p.total_teams }
+    ]
+
+    const rowDefinitions = getRowDefinitions().filter((r) => r.alwaysShow || r.show)
+
     return (
         <div className="p-6">
+            <Link to="/players" className="block text-left text-blue-400 hover:underline text-sm">← Back to search</Link>
             <h1 className="text-3xl font-bold mb-4">{playerName}</h1>
 
+            <div className="mb-4 flex flex-wrap gap-4 text-sm">
+                <div>
+                    <span className="font-semibold mr-2">Gamemode:</span>
+                    {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
+                        <label key={mode} className="mr-3">
+                            <input type="checkbox" checked={gamemodeFilter.has(mode)}
+                                onChange={() => {
+                                    const updated = new Set(gamemodeFilter)
+                                    updated.has(mode) ? updated.delete(mode) : updated.add(mode)
+                                    setGamemodeFilter(updated)
+                                }}
+                            />{' '}{mode}
+                        </label>
+                    ))}
+                </div>
+
+                <label>
+                    <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
+                    Qualified for only
+                </label>
+
+                <label>
+                    Min placement:{' '}
+                    <input
+                        type="number"
+                        value={minPlacement}
+                        onChange={(e) => setMinPlacement(e.target.value)}
+                        className="w-16 bg-gray-800 border border-gray-700 px-1"
+                    />
+                </label>
+
+                <div>
+                    <span className="font-semibold mr-2">Show rows:</span>
+                    {Object.entries(visibleRows).map(([key, value]) => (
+                        <label key={key} className="mr-3">
+                            <input
+                                type="checkbox"
+                                checked={value}
+                                onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
+                            />{' '}{key}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <button
+                onClick={() => setIsVertical(!isVertical)}
+                className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm mb-4"
+            >
+                Flip to {isVertical ? 'Horizontal' : 'Vertical'}
+            </button>
+
             <div className="overflow-x-auto">
-                <table className="border-collapse border border-gray-700 text-sm">
-                    <tbody>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Event</th>
-                            {placements.map((p) => (
-                                <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
-                                    {p.tournament_name.replace(/_/g, ' ')}
-                                </td>
+                {isVertical ? (
+                    <table className="border-collapse border border-gray-700 text-sm">
+                        <thead>
+                            <tr>
+                                {rowDefinitions.map((row) => (
+                                    <th key={row.key} className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center">{row.label}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredPlacements.map((p) => (
+                                <tr key={p.tournament_name}>
+                                    {rowDefinitions.map((row) => (
+                                        <td key={row.key} className="border border-gray-700 px-3 py-2 whitespace-nowrap">{row.render(p)}</td>
+                                    ))}
+                                </tr>
                             ))}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Date</th>
-                            {placements.map((p) => (
-                                <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
-                                    {p.start_date === p.end_date
-                                        ? formatDate(p.start_date)
-                                        : `${formatDate(p.start_date)} - ${formatDate(p.end_date)}`}
-                                </td>
+                        </tbody>
+                    </table>
+                ) : (
+                    <table className="border-collapse border border-gray-700 text-sm">
+                        <tbody>
+                            {rowDefinitions.map((row) => (
+                                <tr key={row.key}>
+                                    <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0">{row.label}</th>
+                                    {filteredPlacements.map((p) => (
+                                        <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">{row.render(p)}</td>
+                                    ))}
+                                </tr>
                             ))}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Gamemode</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.gamemode}</td>)}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Teammates</th>
-                            {placements.map((p) => (
-                                <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap">
-                                    {p.placement === -1 ? '-' : p.teammates.length > 0
-                                        ? p.teammates.map((teammate, i) => (
-                                            <span key={teammate.liquipedia_id}>
-                                                <Link to={`/players/${encodeURIComponent(teammate.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
-                                                    {teammate.display_name}
-                                                </Link>
-                                                {i < p.teammates.length - 1 ? ', ' : ''}
-                                            </span>
-                                        ))
-                                        : '-'}
-                                </td>
-                            ))}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Placement</th>
-                            {placements.map((p) => {
-                                // DNQ covers two cases: never played the qualifiers/heats at all, or played them but didnt qualify
-                                // tracking which one happened would mean scraping qualifiers too, and that format changes almost every chapter, so not worth it for now
-                                // some FNCS lans (2023 globals, C7M1 summit) had more teams qualify/invited than the amount that could actually fit in the lobby game
-                                // those extra teams that never made the finals from lower bracket still earned money, thats what DNP is for
-                                const isDNQ = p.placement === -1
-                                const isDNP = !isDNQ && p.placement > p.max_teams
-                                return (
-                                    <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 font-semibold">
-                                        {isDNQ ? 'DNQ' : isDNP ? 'DNP' : p.placement}
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Earnings</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : `$${Math.round(p.earningsPerPlayer).toLocaleString()}`}</td>)}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Region</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : p.region}</td>)}
-                        </tr>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-left sticky left-0">Total Teams</th>
-                            {placements.map((p) => <td key={p.tournament_name} className="border border-gray-700 px-3 py-2">{p.placement === -1 ? '-' : p.total_teams}</td>)}
-                        </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     )

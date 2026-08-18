@@ -11,6 +11,13 @@ interface TournamentCard {
     regions: string[]
 }
 
+
+// sets any dates shown to whatever date format the user's device is set to
+const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString()
+}
+
+
 // figures out which chapter a tournament falls into based on its start date
 const getChapterForDate = (dateStr: string): number => {
     const found = CHAPTERS.find((c) => dateStr >= c.start && dateStr <= c.end)
@@ -89,17 +96,21 @@ const Tournaments = () => {
                 <div key={chapter} className="w-full max-w-6xl mb-8">
                     <h2 className="text-xl font-bold border-b border-gray-700 pb-2 mb-4">Chapter {chapter}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {byChapter.get(chapter)!.map((t) => (
-                            <Link
-                                key={t.name}
-                                to={`/tournaments/${t.name}?region=${t.regions[0]}`}
-                                className="border border-transparent hover:border-blue-400 bg-gray-800 rounded-lg p-4 transition-transform duration-200 hover:scale-105"
-                            >
-                                <h3 className="text-lg font-semibold">{t.name.replace(/_/g, ' ')}</h3>
-                                <p className="text-sm text-gray-400">{t.gamemode}</p>
-                                <p className="text-sm text-gray-400">{t.start_date} - {t.end_date}</p>
-                            </Link>
-                        ))}
+                        {byChapter.get(chapter)!.map((t) => {
+
+                            const defaultRegion = t.regions.includes('Global') ? 'Global' : t.regions.includes('NAE') ? 'NAE' : 'NAC'
+                            return (
+                                <Link
+                                    key={t.name}
+                                    to={`/tournaments/${t.name}?region=${defaultRegion}`}
+                                    className="border border-transparent hover:border-blue-400 bg-gray-800 rounded-lg p-4 transition-transform duration-200 hover:scale-105"
+                                >
+                                    <h3 className="text-lg font-semibold">{t.name.replace(/_/g, ' ')}</h3>
+                                    <p className="text-sm text-gray-400">{t.gamemode}</p>
+                                    <p className="text-sm text-gray-400">{t.start_date === t.end_date ? formatDate(t.start_date) : `${formatDate(t.start_date)} - ${formatDate(t.end_date)}`}</p>
+                                </Link>
+                            )
+                        })}
                     </div>
                 </div>
             ))}

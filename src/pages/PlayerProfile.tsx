@@ -97,7 +97,7 @@ const PlayerProfile = () => {
             // grabbing every tourney ever to figure out which ones a player missed
             const { data: allTournaments } = await supabase
                 .from('tournaments')
-                .select('name, gamemode, start_date, end_date')
+                .select('name, gamemode, start_date, end_date, region')
 
             // same event name shows up once per region, so only need one entry per event to check if a player qualed or not
             const uniqueEvents = Array.from(
@@ -106,13 +106,25 @@ const PlayerProfile = () => {
 
             const playedEventNames = new Set(rows.map((r) => r.tournament_name))
 
+            // for events this player DNQ'd, need a real region to link to since none was actually played
+            const eventRegions = new Map<string, string[]>()
+            for (const t of allTournaments ?? []) {
+                if (!eventRegions.has(t.name)) eventRegions.set(t.name, [])
+                eventRegions.get(t.name)!.push(t.region)
+            }
+
+            const getDefaultRegion = (eventName: string): string => {
+                const regions = eventRegions.get(eventName) ?? []
+                return regions.includes('Global') ? 'Global' : regions.includes('NAE') ? 'NAE' : 'NAC'
+            }
+
             // building a fake placement entry for every event a player never showed up in, so the table can display DNQ for them
             const dnqRows: PlacementRow[] = uniqueEvents
                 .filter((event) => !playedEventNames.has(event.name))
                 .map((event) => ({
                     tournament_name: event.name,
                     gamemode: event.gamemode,
-                    region: '-',
+                    region: getDefaultRegion(event.name),
                     start_date: event.start_date,
                     end_date: event.end_date,
                     total_teams: 0,
@@ -120,7 +132,7 @@ const PlayerProfile = () => {
                     placement: -1,
                     earnings: 0,
                     teammates: [],
-                    earningsPerPlayer: 0
+                    earningsPerPlayer: 0,
                 }))
 
             const allRows = [...rows, ...dnqRows]
@@ -165,7 +177,11 @@ const PlayerProfile = () => {
     // one definition per stat row thats reused for both the horizontal & vertical table layouts
     // makes it so we only write each cell's logic once
     const getRowDefinitions = () => [
-        { key: 'event', label: 'Event', alwaysShow: true, render: (p: PlacementRow) => p.tournament_name.replace(/_/g, ' ') },
+        { key: 'event', label: 'Event', alwaysShow: true, render: (p: PlacementRow) => (
+            <Link to={`/tournaments/${p.tournament_name}?region=${encodeURIComponent(p.region)}`} className="text-blue-400 hover:underline">
+                {p.tournament_name.replace(/_/g, ' ')}
+            </Link>
+        ) },
         { key: 'date', label: 'Date', alwaysShow: true, render: (p: PlacementRow) =>
             p.start_date === p.end_date ? formatDate(p.start_date) : `${formatDate(p.start_date)} - ${formatDate(p.end_date)}` },
         { key: 'gamemode', label: 'Gamemode', alwaysShow: true, render: (p: PlacementRow) => p.gamemode },
@@ -245,7 +261,7 @@ const PlayerProfile = () => {
                     </label>
 
                     <div>
-                        <span className="font-semibold mr-2">Show rows:</span>
+                        <span className="font-semibold mr-2">Show {isHorizontal ? 'rows:' : 'columns:'}</span>
                         {Object.entries(visibleRows).map(([key, value]) => (
                             <label key={key} className="mr-3">
                                 <input

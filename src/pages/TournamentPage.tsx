@@ -93,45 +93,43 @@ const TournamentPage = () => {
     return (
         <div className="flex h-screen">
 
-            <div className="flex flex-col items-center w-72 shrink-0 border-r border-gray-700 p-4 gap-1">
-                <Link to="/tournaments" className="border text-blue-400 hover:underline text-sm mb-4 block">← Back to tournaments</Link>
-                <h1 className="text-2xl font-bold mb-2 border text-center">{displayName}</h1>
-                {logoUrl && <img src={logoUrl} alt={displayName} className="w-full mb-4 rounded border" />}
+<div className="flex flex-col items-center w-72 shrink-0 border-r border-gray-700 p-4 gap-1">
+    <Link to="/tournaments" className="text-blue-400 hover:underline text-sm self-start mb-2">← Back to tournaments</Link>
 
-                {info.start_date === info.end_date ? (
-                    <p className='border'>Date: {formatDate(info.start_date)}</p>
-                ) : (
-                    <>
-                        <p className='border'>Start Date: {formatDate(info.start_date)}</p>
-                        <p className='border'>End Date: {formatDate(info.end_date)}</p>
-                    </>
-                )}
-                <p className='border'>Total Teams: {info.total_teams}</p>
-                <p className='border'>Prize Pool: ${info.prize_pool.toLocaleString()}</p>
-                <p className='border'>Type: {info.play_setting}</p>
-                {info.region === 'Global' && <p className='border'><span className="text-gray-400">Location:</span> {info.location}</p>}
-                {info.venue && <p className='border'>Venue: {info.venue}</p>}
+    <h1 className="text-2xl font-bold text-center mb-4">{displayName}</h1>
 
-                <div className="flex items-center gap-2">
-                    {availableRegions.length > 1 ? (
-                        <div className="border flex items-center mt-2 gap-2">
-                            <label>Region:</label>
-                            <select
-                                value={region}
-                                onChange={(e) => setSearchParams({ region: e.target.value })}
-                                className="bg-gray-800 border border-gray-700 px-2 py-1 rounded"
-                            >
-                                {availableRegions.map((r) => <option key={r} value={r}>{r}</option>)}
-                            </select>
-                        </div>
-                    ) : (
-                        <p className='border'>Region: {info.region}</p>
-                    )}
-                </div>
+    {logoUrl && <img src={logoUrl} alt={displayName} className="w-48 mb-4 rounded" />}
+
+    <div className="w-full bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
+        {info.start_date === info.end_date ? (
+            <p><span className="text-gray-400">Date:</span> {formatDate(info.start_date)}</p>
+        ) : (
+            <>
+                <p><span className="text-gray-400">Start Date:</span> {formatDate(info.start_date)}</p>
+                <p><span className="text-gray-400">End Date:</span> {formatDate(info.end_date)}</p>
+            </>
+        )}
+        <p><span className="text-gray-400">Total Teams:</span> {info.total_teams}</p>
+        <p><span className="text-gray-400">Prize Pool:</span> ${info.prize_pool.toLocaleString()}</p>
+        <p><span className="text-gray-400">Type:</span> {info.play_setting}</p>
+        <p><span className="text-gray-400">Location:</span> {info.location}</p>
+        {info.venue && <p><span className="text-gray-400">Venue:</span> {info.venue}</p>}
+
+        {availableRegions.length > 1 ? (
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-700 mt-2">
+                <label className="text-gray-400">Region:</label>
+                <select value={region} onChange={(e) => setSearchParams({ region: e.target.value })} className="bg-gray-900 border border-gray-700 px-2 py-1 rounded">
+                    {availableRegions.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
             </div>
+        ) : (
+            <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Region:</span> {info.region}</p>
+        )}
+    </div>
+</div>
 
             <div className="flex-1 overflow-y-auto p-6">
-                <table className="border-collapse border border-gray-700 text-sm w-full">
+                <table className="border-collapse border border-gray-700 text-sm mx-auto">
                     <thead>
                         <tr>
                             <th className="border border-gray-700 bg-gray-800 px-3 py-2 text-white">Placement</th>

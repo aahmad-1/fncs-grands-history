@@ -77,6 +77,7 @@ const Players = () => {
                 placeholder="Search players..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                className="border border-gray-600 focus:border-gray-400 bg-gray-900 px-3 py-2 rounded transition-colors outline-none"
             />
             <ul>
                 {results.map((player) => (

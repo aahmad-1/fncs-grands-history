@@ -24,8 +24,8 @@ def save_to_csv(placements, metadata, folder_name, csv_filename):
 
     headers = [
         "Placement", "Player(s)", "Earnings", "Liquipedia ID's",
-        "Region", "Gamemode", "Max Teams", "Total Teams",
-        "Start Date", "End Date", "URL"
+        "Region", "Gamemode", "Max Teams", "Total Teams", "Prize Pool",
+        "Play Setting", "Location", "Venue", "Start Date", "End Date", "URL"
     ]
 
     with open(filepath, "w", newline="", encoding="utf-8") as csv_file:
@@ -37,12 +37,13 @@ def save_to_csv(placements, metadata, folder_name, csv_filename):
                 writer.writerow([
                     row["placement"], row["players"], row["earnings"], row["liquipedia_ids"],
                     metadata["region"], metadata["gamemode"], metadata["max_teams"], metadata["total_teams"],
+                    metadata["prize_pool"], metadata["play_setting"], metadata["location"], metadata["venue"],
                     metadata["start_date"], metadata["end_date"], metadata["url"]
                 ])
             else:
                 writer.writerow([
                     row["placement"], row["players"], row["earnings"], row["liquipedia_ids"],
-                    "", "", "", "", "", "", ""
+                    "", "", "", "", "", "", "", "", "", "", ""
                 ])
 
     print(f"Saved {filepath}\n")

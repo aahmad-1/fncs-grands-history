@@ -124,10 +124,28 @@ def extract_metadata(html_text, url):
     right_box = soup.find("div", class_="fo-nttax-infobox")
     
     for row in right_box.find_all("div", recursive=False):
+
+        if row.div.get_text() == "Type:":
+            if row.find_all("div")[1].get_text() == "Offline":
+                play_setting = "Offline"
+                location_div = row.find_next_sibling("div")
+                location = location_div.find_all("div")[1].get_text().strip()
+                venue_div = location_div.find_next_sibling("div")
+                venue = venue_div.find_all("div")[1].a.get_text()
+            else:
+                play_setting = "Online"
+                location_div = row.find_next_sibling("div")
+                location = location_div.find_all("div")[1].get_text().strip()
+                venue = None
+
         if row.div.get_text() == "Start Date:":
+            prize_pool_div = row.find_previous_sibling("div").find_all("div")[1]
+            prize_pool = prize_pool_div.get_text().replace(",", "").split()[0][1:]   
             start_date = row.find_all("div")[1].get_text()
             end_date = row.find_next_sibling("div").find_all("div")[1].get_text()
         elif row.div.get_text() == "Date:":
+            prize_pool_div = row.find_previous_sibling("div").find_all("div")[1]
+            prize_pool = prize_pool_div.get_text().replace(",", "").split()[0][1:]  
             start_date = end_date = row.find_all("div")[1].get_text()
         else:
             continue
@@ -138,6 +156,10 @@ def extract_metadata(html_text, url):
         "gamemode": gamemode,
         "max_teams": max_teams,
         "total_teams": total_teams,
+        "prize_pool": prize_pool,
+        "play_setting": play_setting,
+        "location": location,
+        "venue": venue,
         "start_date": start_date,
         "end_date": end_date,
         "url": url

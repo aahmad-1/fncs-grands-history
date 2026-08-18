@@ -24,13 +24,14 @@ def get_all_csv_paths():
 
 def insert_tournament(cur, event_name, row):
     cur.execute("""
-        INSERT INTO tournaments (name, gamemode, region, max_teams, total_teams, start_date, end_date, url)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO tournaments (name, gamemode, region, max_teams, total_teams, prize_pool, play_setting, location, venue, start_date, end_date, url)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (name, region) DO UPDATE SET name = EXCLUDED.name
         RETURNING id
     """, (
-        event_name, row["Gamemode"], row["Region"], row["Max Teams"],
-        row["Total Teams"], row["Start Date"], row["End Date"], row["URL"]
+        event_name, row["Gamemode"], row["Region"], row["Max Teams"], row["Total Teams"],
+        row["Prize Pool"], row["Play Setting"], row["Location"], row["Venue"],
+        row["Start Date"], row["End Date"], row["URL"]
     ))
     return cur.fetchone()[0]
 

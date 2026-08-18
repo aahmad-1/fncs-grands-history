@@ -285,7 +285,7 @@ const PlayerProfile = () => {
                             </tbody>
                         </table>
                     ) : (
-                        <table className="border-collapse border border-gray-700 text-sm">
+                        <table className="mx-auto border-collapse border border-gray-700 text-sm">
                             <thead>
                                 <tr>
                                     {rowDefinitions.map((row) => (

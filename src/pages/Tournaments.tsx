@@ -29,6 +29,12 @@ const Tournaments = () => {
     const [tournaments, setTournaments] = useState<TournamentCard[]>([])
     const [loading, setLoading] = useState<boolean>(true)
 
+    // foilters
+    const [chapterFilter, setChapterFilter] = useState<number | null>(null)
+    const [gamemodeFilter, setGamemodeFilter] = useState<Set<string>>(
+        new Set(['Solos', 'Duos', 'Trios', 'Squads'])
+    )
+
     useEffect(() => {
         const fetchTournaments = async () => {
             const { data, error } = await supabase
@@ -66,11 +72,14 @@ const Tournaments = () => {
         fetchTournaments()
     }, [])
 
-    if (loading) return <p className="text-center">Loading...</p>
+    if (loading) return <p className="flex text-center">Loading...</p>
 
-    const filtered = tournaments.filter((t) =>
-        t.name.toLowerCase().replace(/_/g, ' ').includes(query.toLowerCase())
-    )
+    const filtered = tournaments.filter((t) => {
+        const matchesSearch = t.name.toLowerCase().replace(/_/g, ' ').includes(query.toLowerCase())
+        const matchesGamemode = gamemodeFilter.has(t.gamemode)
+        const matchesChapter = chapterFilter === null || getChapterForDate(t.start_date) === chapterFilter
+        return matchesSearch && matchesGamemode && matchesChapter
+    })
 
     // group filtered results by chapter in descending order
     const byChapter = new Map<number, TournamentCard[]>()
@@ -83,7 +92,7 @@ const Tournaments = () => {
 
     return (
         <div className="p-6 flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-4">Search an FNCS Grands Tournament</h1>
+            <h1 className="text-3xl font-bold mb-4 text-center">Search an FNCS Grands Tournament</h1>
             <input
                 type="text"
                 placeholder="Search tournaments..."
@@ -91,6 +100,38 @@ const Tournaments = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 className="border border-gray-600 focus:border-gray-400 bg-gray-900 px-3 py-2 rounded transition-colors outline-none mb-8 w-full max-w-md"
             />
+
+            <div className="mb-8 flex flex-wrap justify-center items-center gap-4 text-sm">
+                <div>
+                    <span className="font-semibold mr-2">Chapter:</span>
+                    <select
+                        value={chapterFilter ?? ''}
+                        onChange={(e) => setChapterFilter(e.target.value === '' ? null : Number(e.target.value))}
+                        className="bg-gray-800 border border-gray-700 px-2 py-1 rounded"
+                    >
+                        <option value="">All</option>
+                        {[1, 2, 3, 4, 5, 6, 7].map((c) => <option key={c} value={c}>Chapter {c}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <span className="font-semibold mr-2">Gamemode:</span>
+                    {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
+                        <label key={mode} className="mr-3">
+                            <input
+                                type="checkbox"
+                                checked={gamemodeFilter.has(mode)}
+                                onChange={() => {
+                                    const updated = new Set(gamemodeFilter)
+                                    updated.has(mode) ? updated.delete(mode) : updated.add(mode)
+                                    setGamemodeFilter(updated)
+                                }}
+                            />{' '}{mode}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            
 
             {sortedChapters.map((chapter) => (
                 <div key={chapter} className="w-full max-w-6xl mb-8">

@@ -8,12 +8,21 @@ const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleDateString()
 }
 
+const rowLabels: Record<string, string> = {
+    placement: 'Placement',
+    earnings: 'Earnings',
+    region: 'Region',
+    teammates: 'Teammates',
+    totalTeams: 'Total Teams'
+}
+
 const PlayerProfile = () => {
     const { playerId } = useParams<{ playerId: string }>()
     const [playerName, setPlayerName] = useState<string>('')
     const [placements, setPlacements] = useState<PlacementRow[]>([])
     const [loading, setLoading] = useState<boolean>(true)
     const [isHorizontal, setIsHorizontal] = useState(false)
+    const [showFilters, setShowFilters] = useState(false)
 
     // states for filters
     const [visibleRows, setVisibleRows] = useState({
@@ -31,6 +40,7 @@ const PlayerProfile = () => {
     const [minPlacement, setMinPlacement] = useState<string>('')
     const [dateFrom, setDateFrom] = useState<string>('')
     const [dateTo, setDateTo] = useState<string>('')
+    const [resetDateCounter, setResetDateCounter] = useState(0)
     
 
     useEffect(() => {
@@ -229,62 +239,104 @@ const PlayerProfile = () => {
 
             <div className="flex-1 overflow-y-auto p-6">
 
-                <div className="mb-4 flex flex-wrap gap-4 text-sm">
-                    <div>
-                        <span className="font-semibold mr-2">Gamemode:</span>
-                        {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
-                            <label key={mode} className="mr-3">
-                                <input type="checkbox" checked={gamemodeFilter.has(mode)}
-                                    onChange={() => {
-                                        const updated = new Set(gamemodeFilter)
-                                        updated.has(mode) ? updated.delete(mode) : updated.add(mode)
-                                        setGamemodeFilter(updated)
-                                    }}
-                                />{' '}{mode}
-                            </label>
-                        ))}
-                    </div>
-
-                    <label>
-                        <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
-                        Qualified for only
-                    </label>
-
-                    <label>
-                        Min placement:{' '}
-                        <input
-                            type="number"
-                            value={minPlacement}
-                            onChange={(e) => setMinPlacement(e.target.value)}
-                            className="w-16 bg-gray-800 border border-gray-700 px-1"
-                        />
-                    </label>
-
-                    <div>
-                        <span className="font-semibold mr-2">Show {isHorizontal ? 'rows:' : 'columns:'}</span>
-                        {Object.entries(visibleRows).map(([key, value]) => (
-                            <label key={key} className="mr-3">
-                                <input
-                                    type="checkbox"
-                                    checked={value}
-                                    onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
-                                />{' '}{key}
-                            </label>
-                        ))}
-                    </div>
-                    <div className="flex gap-2 items-center">
-                        <label>From: <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="bg-gray-800 border border-gray-700 px-1" /></label>
-                        <label>To: <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="bg-gray-800 border border-gray-700 px-1" /></label>
-                        <button onClick={() => { setDateFrom(''); setDateTo('') }} className="bg-gray-800 border border-gray-700 px-2 py-1 rounded text-xs">Reset dates</button>
-                    </div>
-                </div>
-
                 <button
-                    onClick={() => setIsHorizontal(!isHorizontal)}
-                    className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm mb-4"
+                    onClick={() => setShowFilters(true)}
+                    className="bg-gray-800 border border-gray-700 px-4 py-2 rounded mb-4"
                 >
-                    Flip to {isHorizontal ? 'Vertical' : 'Horizontal'}
+                    Filters
                 </button>
+
+                {showFilters && (
+                    <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowFilters(false)}>
+                        <div
+                            className="fixed right-0 top-0 h-screen w-80 bg-gray-900 border-l border-gray-700 p-6 z-50 overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-lg font-bold">Filters</h2>
+                                <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-white text-xl">✕</button>
+                            </div>
+
+                            <div className="mb-6">
+                                <p className="text-xs font-semibold text-gray-400 mb-2">GAMEMODE</p>
+                                {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
+                                    <label key={mode} className="block mb-1">
+                                        <input
+                                            type="checkbox"
+                                            checked={gamemodeFilter.has(mode)}
+                                            onChange={() => {
+                                                const updated = new Set(gamemodeFilter)
+                                                updated.has(mode) ? updated.delete(mode) : updated.add(mode)
+                                                setGamemodeFilter(updated)
+                                            }}
+                                        />{' '}{mode}
+                                    </label>
+                                ))}
+                            </div>
+
+                            <div className="mb-6">
+                                <p className="text-xs font-semibold text-gray-400 mb-2">PLACEMENTS</p>
+                                <label className="block mb-2">
+                                    <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
+                                    Qualified for only
+                                </label>
+                                <label className="block">
+                                    Min placement:{' '}
+                                    <input
+                                        type="number"
+                                        value={minPlacement}
+                                        onChange={(e) => setMinPlacement(e.target.value)}
+                                        className="w-16 bg-gray-800 border border-gray-700 px-1 ml-1"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="mb-6">
+                                <p className="text-xs font-semibold text-gray-400 mb-2">{isHorizontal ? 'ROWS' : 'COLUMNS'}</p>
+                                {Object.entries(visibleRows).map(([key, value]) => (
+                                    <label key={key} className="block mb-1">
+                                        <input
+                                            type="checkbox"
+                                            checked={value}
+                                            onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
+                                        />{' '}{rowLabels[key]}
+                                    </label>
+                                ))}
+                            </div>
+
+                            <div className="mb-6">
+                                <p className="text-xs font-semibold text-gray-400 mb-2">DATE</p>
+                                <label className="block mb-2">From: <input
+                                    key={`from-${resetDateCounter}`}
+                                    type="date"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700 px-1 ml-1"
+                                /></label>
+                                <label className="block mb-2">To: <input
+                                    key={`to-${resetDateCounter}`}
+                                    type="date"
+                                    value={dateTo}
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700 px-1 ml-1"
+                                /></label>
+                                <button onClick={() => { setDateFrom(''); setDateTo(''); setResetDateCounter(resetDateCounter + 1) }} className="bg-gray-800 border border-gray-700 px-2 py-1 rounded text-xs">Reset dates</button>
+                            </div>
+
+                            <div>
+                                <label className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-gray-400">ORIENTATION</span>
+                                    <button
+                                        onClick={() => setIsHorizontal(!isHorizontal)}
+                                        className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm"
+                                    >
+                                        {isHorizontal ? 'Horizontal' : 'Vertical'}
+                                    </button>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="overflow-x-auto">
                     {isHorizontal ? (

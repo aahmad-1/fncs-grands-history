@@ -157,6 +157,42 @@ const TournamentPage = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* <div className="flex-1 w-full overflow-y-visible min-[622px]:overflow-y-auto p-2 sm:p-6 flex justify-center">
+                <div className="w-full overflow-x-auto flex justify-center">
+                    <table className="w-full max-w-full border-collapse border border-gray-700 text-xs sm:text-sm mx-auto">
+                        <thead>
+                            <tr>
+                                <th className="border border-gray-700 bg-gray-800 px-2 sm:px-3 py-2 text-white">Placement</th>
+                                <th className="border border-gray-700 bg-gray-800 px-2 sm:px-3 py-2 text-white">Players</th>
+                                <th className="border border-gray-700 bg-gray-800 px-2 sm:px-3 py-2 text-white">Earnings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {leaderboard.map((row) => (
+                                <tr key={row.placement}>
+                                    <td className="border border-gray-700 px-2 sm:px-3 py-2 text-center font-medium">{row.placement}</td>
+                                    <td className="border border-gray-700 px-2 sm:px-3 py-2 text-center">
+                                        <div className="flex flex-wrap justify-center items-center gap-x-1 gap-y-0.5">
+                                            {row.players.map((p, i) => (
+                                                <span key={p.liquipedia_id} className="whitespace-nowrap">
+                                                    <Link to={`/players/${encodeURIComponent(p.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
+                                                        {p.display_name}
+                                                    </Link>
+                                                    {i < row.players.length - 1 ? ',' : ''}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="border border-gray-700 px-2 sm:px-3 py-2 text-center whitespace-nowrap">
+                                        ${row.earnings.toLocaleString()}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div> */}
         </div>
     )
 }

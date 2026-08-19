@@ -72,7 +72,7 @@ const Tournaments = () => {
         fetchTournaments()
     }, [])
 
-    if (loading) return <p className="flex text-center">Loading...</p>
+    if (loading) return <p className="flex jtext-center">Loading...</p>
 
     const filtered = tournaments.filter((t) => {
         const matchesSearch = t.name.toLowerCase().replace(/_/g, ' ').includes(query.toLowerCase())
@@ -102,7 +102,7 @@ const Tournaments = () => {
             />
 
             <div className="mb-8 flex flex-wrap justify-center items-center gap-4 text-sm">
-                <div>
+                <div className='flex flex-wrap justify-center items-center'>
                     <span className="font-semibold mr-2">Chapter:</span>
                     <select
                         value={chapterFilter ?? ''}
@@ -113,10 +113,10 @@ const Tournaments = () => {
                         {[1, 2, 3, 4, 5, 6, 7].map((c) => <option key={c} value={c}>Chapter {c}</option>)}
                     </select>
                 </div>
-                <div>
+                <div className='flex flex-wrap justify-center'>
                     <span className="font-semibold mr-2">Gamemode:</span>
                     {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
-                        <label key={mode} className="mr-3">
+                        <label key={mode} className="mr-3 whitespace-nowrap">
                             <input
                                 type="checkbox"
                                 checked={gamemodeFilter.has(mode)}
@@ -130,8 +130,6 @@ const Tournaments = () => {
                     ))}
                 </div>
             </div>
-
-            
 
             {sortedChapters.map((chapter) => (
                 <div key={chapter} className="w-full max-w-6xl mb-8">

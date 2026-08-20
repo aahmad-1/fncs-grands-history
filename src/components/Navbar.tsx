@@ -6,6 +6,7 @@ const Navbar = () => {
             <Link to="/" className="font-bold text-lg">FNCS Grands History</Link>
             <Link to="/players" className="text-gray-400 hover:text-white transition-colors">Players</Link>
             <Link to="/tournaments" className="text-gray-400 hover:text-white transition-colors">Tournaments</Link>
+            <Link to="/rankings" className="text-gray-400 hover:text-white transition-colors">Rankings</Link>
         </nav>
     )
 }

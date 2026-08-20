@@ -5,6 +5,7 @@ import Players from './pages/Players'
 import PlayerProfile from './pages/PlayerProfile'
 import Tournaments from './pages/Tournaments'
 import TournammentPage from './pages/TournamentPage'
+import Rankings from './pages/Rankings'
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/players/:playerId" element={<PlayerProfile />} />
                 <Route path="/tournaments" element={<Tournaments />} />
                 <Route path="/tournaments/:tournamentName" element={<TournammentPage />} />
+                <Route path="/rankings" element={<Rankings />} />
             </Routes>
         </BrowserRouter>
     )

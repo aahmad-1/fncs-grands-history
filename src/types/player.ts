@@ -20,6 +20,7 @@ export interface TournamentInfo {
 export interface RawPlacement {
     placement: number
     earnings: number
+    disqualified: boolean
     placement_players: PlacementPlayerEntry[]
     tournaments: TournamentInfo
 }
@@ -40,6 +41,7 @@ export interface PlacementRow {
     earnings: number
     teammates: TeammateInfo[]
     earningsPerPlayer: number
+    disqualified: boolean
 }
 
 export interface AliasMatch {

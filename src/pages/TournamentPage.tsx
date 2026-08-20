@@ -19,6 +19,7 @@ interface TournamentInfo {
 interface LeaderboardEntry {
     placement: number
     earnings: number
+    disqualified: boolean
     players: { liquipedia_id: string, display_name: string }[]
 }
 
@@ -61,7 +62,7 @@ const TournamentPage = () => {
 
             const { data: placementsData, error: placementsError } = await supabase
                 .from('placements')
-                .select('placement, earnings, placement_players ( players ( liquipedia_id, display_name ) )')
+                .select('placement, earnings, disqualified, placement_players ( players ( liquipedia_id, display_name ) )')
                 .eq('tournament_id', tournamentData.id)
                 .order('placement')
 
@@ -74,6 +75,7 @@ const TournamentPage = () => {
             const rows: LeaderboardEntry[] = (placementsData ?? []).map((row: any) => ({
                 placement: row.placement,
                 earnings: row.earnings,
+                disqualified: row.disqualified,
                 players: row.placement_players.map((pp: any) => pp.players)
             }))
 
@@ -114,7 +116,8 @@ const TournamentPage = () => {
                     <p><span className="text-gray-400">Type:</span> {info.play_setting}</p>
                     {info.region === 'Global' && <p><span className="text-gray-400">Location:</span> {info.location}</p>}
                     {info.venue && <p><span className="text-gray-400">Venue:</span> {info.venue}</p>}
-
+                    
+                    {/* // only show the region dropdown if this event actually ran in more than one region, otherwise just print it */}
                     {availableRegions.length > 1 ? (
                         <div className="flex items-center gap-2 pt-2 border-t border-gray-700 mt-2">
                             <label className="text-gray-400">Region:</label>
@@ -140,7 +143,9 @@ const TournamentPage = () => {
                     <tbody>
                         {leaderboard.map((row) => (
                             <tr key={row.placement}>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.placement}</td>
+                                <td className="border border-gray-700 px-3 py-2 text-center">
+                                    {row.disqualified ? 'DQ' : row.placement}
+                                </td>
                                 <td className="border border-gray-700 px-3 py-2 text-center">
                                     {row.players.map((p, i) => (
                                         <span key={p.liquipedia_id}>

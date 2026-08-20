@@ -62,6 +62,7 @@ const PlayerProfile = () => {
                     placements (
                         placement,
                         earnings,
+                        disqualified,
                         placement_players ( players ( liquipedia_id, display_name ) ),
                         tournaments ( name, gamemode, region, start_date, end_date, total_teams, max_teams )
                     )
@@ -96,6 +97,7 @@ const PlayerProfile = () => {
                     max_teams: row.placements.tournaments.max_teams,
                     placement: row.placements.placement,
                     earnings: row.placements.earnings,
+                    disqualified: row.placements.disqualified,
                     teammates,
                     earningsPerPlayer
                 }
@@ -143,6 +145,7 @@ const PlayerProfile = () => {
                     earnings: 0,
                     teammates: [],
                     earningsPerPlayer: 0,
+                    disqualified: false
                 }))
 
             const allRows = [...rows, ...dnqRows]
@@ -206,12 +209,14 @@ const PlayerProfile = () => {
                     </span>
                 ))
                 : '-' },
-        { key: 'placement', label: 'Placement', alwaysShow: false, show: visibleRows.placement, render: (p: PlacementRow) =>
+        { key: 'placement', label: 'Placement', alwaysShow: false, show: visibleRows.placement, render: (p: PlacementRow) => {
             // DNQ covers two cases: never played the qualifiers/heats at all, or played them but didnt qualify
             // tracking which one happened would mean scraping the qualifiers and heats leaderboards too, but the tournament format isn't always the same, and it's a bunch of links and a hassle to impliment
             // some FNCS lans (2023 globals, C7M1 summit) had more teams qualify/invited than the amount that could actually fit in the lobby game
             // those extra teams that never made the finals from lower bracket still earned money, thats what DNP is for
-            p.placement === -1 ? 'DNQ' : p.placement > p.max_teams ? 'DNP' : p.placement },
+            if (p.placement === -1) return 'DNQ'
+            if (p.disqualified) return 'DQ'
+            return p.placement > p.max_teams ? 'DNP' : p.placement}},
         { key: 'earnings', label: 'Earnings', alwaysShow: false, show: visibleRows.earnings, render: (p: PlacementRow) =>
             p.placement === -1 ? '-' : `$${Math.round(p.earningsPerPlayer).toLocaleString()}` },
         { key: 'region', label: 'Region', alwaysShow: false, show: visibleRows.region, render: (p: PlacementRow) =>

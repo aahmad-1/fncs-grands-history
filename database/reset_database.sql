@@ -1,0 +1,1 @@
+TRUNCATE TABLE placement_players, placements, player_aliases, players, tournaments RESTART IDENTITY CASCADE;

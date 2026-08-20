@@ -1,3 +1,5 @@
+// needs new entries to be added manually each time a new chapter/tournament releases
+
 export const LOGO_URLS: Record<string, string> = {
     'Season_X': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/Season_X_logo.png',
     'C2S1': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C2S1_logo.png',

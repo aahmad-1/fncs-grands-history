@@ -2,28 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import type { AliasMatch } from '../types/player'
+import { differentiateDisplayNames } from '../utils/differentiateDisplayNames'
 
 interface Player {
     liquipedia_id: string
     display_name: string
-}
-
-// some players share the same display name but have different liquipedia id's
-// if that happens, swap their name for their id instead
-// so the user can actually tell them apart in the search results
-const differentiateDisplayNames = (players: Player[]): Player[] => {
-    const nameCounts = new Map<string, number>()
-    players.forEach((p) => {
-        nameCounts.set(p.display_name, (nameCounts.get(p.display_name) ?? 0) + 1)
-    })
-
-    return players.map((p) => {
-        if ((nameCounts.get(p.display_name) ?? 0) > 1) {
-            const cleanId = p.liquipedia_id.replace('/fortnite/', '').replace(/_/g, ' ')
-            return { ...p, display_name: cleanId }
-        }
-        return p
-    })
 }
 
 const Players = () => {

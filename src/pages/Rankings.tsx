@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { differentiateDisplayNames } from '../utils/differentiateDisplayNames'
 
 interface RankingRow {
     liquipedia_id: string
@@ -35,7 +36,8 @@ const Rankings = () => {
                 const { data, error } = await supabase
                     .from('player_rankings')
                     .select('*')
-                    .range(from, from + batchSize - 1)
+                    .order('liquipedia_id') // pagination needs an explicit order or supabase can return rows in a different order each batch, causing missing/duplicate/unordered players
+                    .range(from, from + batchSize - 1) // looping since supabase caps a single request at 1000 rows, this grabs everything in batches
 
                 if (error) {
                     console.error(error)
@@ -48,7 +50,7 @@ const Rankings = () => {
                 from += batchSize
             }
 
-            setRankings(allRows)
+            setRankings(differentiateDisplayNames(allRows))
             setLoading(false)
         }
         fetchRankings()
@@ -57,7 +59,7 @@ const Rankings = () => {
     if (loading) return <p className="text-center">Loading...</p>
 
     const filtered = rankings.filter((r) => r.events_qualified >= minQualified)
-    // avg_placement is the only column where lower is better, everything else sorts descending
+    // avg_placement is the only stat where lower is better, everything else is descending (higher is better)
     const sorted = [...filtered].sort((a, b) =>
         sortKey === 'avg_placement' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
     )

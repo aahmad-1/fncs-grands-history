@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { differentiateDisplayNames } from '../utils/differentiateDisplayNames'
+import Pagination from '../components/Pagination'
+import Skeleton from '../components/Skeleton'
 
 interface RankingRow {
     liquipedia_id: string
@@ -56,8 +58,6 @@ const Rankings = () => {
         fetchRankings()
     }, [])
 
-    if (loading) return <p className="text-center">Loading...</p>
-
     const filtered = rankings.filter((r) => r.events_qualified >= minQualified)
     // avg_placement is the only stat where lower is better, everything else is descending (higher is better)
     const sorted = [...filtered].sort((a, b) =>
@@ -79,7 +79,7 @@ const Rankings = () => {
 
     return (
         <div className="p-6 flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-6">Player Rankings</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">Player Rankings</h1>
 
             <label className="mb-6">
                 Minimum grands qualified:{' '}
@@ -92,50 +92,56 @@ const Rankings = () => {
                 />
             </label>
 
-            <div className="overflow-x-auto w-full">
-                <table className="border-collapse border border-gray-700 text-sm mx-auto">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-700 bg-gray-800 px-3 py-2">#</th>
-                            <th className="border border-gray-700 bg-gray-800 px-3 py-2">Player</th>
-                            {columns.map((col) => (
-                                <th
-                                    key={col.key}
-                                    onClick={() => { setSortKey(col.key); setPage(1) }}
-                                    className={`border border-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap ${sortKey === col.key ? 'bg-yellow-700 text-white' : 'bg-gray-800 text-gray-400'}`}
-                                >
-                                    {col.label}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pageRows.map((row, i) => (
-                            <tr key={row.liquipedia_id}>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{(page - 1) * PAGE_SIZE + i + 1}</td>
-                                <td className="border border-gray-700 px-3 py-2 whitespace-nowrap">
-                                    <Link to={`/players/${encodeURIComponent(row.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
-                                        {row.display_name}
-                                    </Link>
-                                </td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.wins}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.top3}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.top5}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.top10}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.events_qualified}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">{row.avg_placement}</td>
-                                <td className="border border-gray-700 px-3 py-2 text-center">${row.total_earnings.toLocaleString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {loading ? (
+                <div className="w-full max-w-4xl flex flex-col gap-2">
+                    {Array.from({ length: 15 }).map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-full" />
+                    ))}
+                </div>
+            ) : (
+                <>
+                    <div className="overflow-x-auto w-full mb-6">
+                        <table className="border-collapse border border-gray-700 text-sm mx-auto">
+                            <thead>
+                                <tr>
+                                    <th className="border border-gray-700 bg-gray-800 px-3 py-2">#</th>
+                                    <th className="border border-gray-700 bg-gray-800 px-3 py-2">Player</th>
+                                    {columns.map((col) => (
+                                        <th
+                                            key={col.key}
+                                            onClick={() => { setSortKey(col.key); setPage(1) }}
+                                            className={`border border-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap ${sortKey === col.key ? 'bg-yellow-700 text-white' : 'bg-gray-800 text-gray-400'}`}
+                                        >
+                                            {col.label}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pageRows.map((row, i) => (
+                                    <tr key={row.liquipedia_id}>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{(page - 1) * PAGE_SIZE + i + 1}</td>
+                                        <td className="border border-gray-700 px-3 py-2 whitespace-nowrap">
+                                            <Link to={`/players/${encodeURIComponent(row.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
+                                                {row.display_name}
+                                            </Link>
+                                        </td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.wins}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top3}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top5}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top10}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.events_qualified}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.avg_placement}</td>
+                                        <td className="border border-gray-700 px-3 py-2 text-center">${row.total_earnings.toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div className="flex gap-2 mt-6 items-center">
-                <button disabled={page === 1} onClick={() => setPage(page - 1)} className="bg-gray-800 border border-gray-700 px-3 py-1 rounded disabled:opacity-30">Prev</button>
-                <span>Page {page} of {totalPages}</span>
-                <button disabled={page === totalPages} onClick={() => setPage(page + 1)} className="bg-gray-800 border border-gray-700 px-3 py-1 rounded disabled:opacity-30">Next</button>
-            </div>
+                    <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+                </>
+            )}
         </div>
     )
 }

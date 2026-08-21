@@ -11,15 +11,17 @@ import Rankings from './pages/Rankings'
 function App() {
     return (
         <BrowserRouter>
-            <Navbar />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/players" element={<Players />} />
-                <Route path="/players/:playerId" element={<PlayerProfile />} />
-                <Route path="/tournaments" element={<Tournaments />} />
-                <Route path="/tournaments/:tournamentName" element={<TournammentPage />} />
-                <Route path="/rankings" element={<Rankings />} />
-            </Routes>
+            <div className='overflow-x-hidden'>
+                <Navbar />
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/players" element={<Players />} />
+                    <Route path="/players/:playerId" element={<PlayerProfile />} />
+                    <Route path="/tournaments" element={<Tournaments />} />
+                    <Route path="/tournaments/:tournamentName" element={<TournammentPage />} />
+                    <Route path="/rankings" element={<Rankings />} />
+                </Routes>
+            </div>
         </BrowserRouter>
     )
 }

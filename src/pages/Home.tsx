@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import Skeleton from '../components/Skeleton'
 
 interface LatestTournament {
     name: string
@@ -60,13 +61,19 @@ const Home = () => {
                 </div>
             </div>
 
-            {latest && (
+            {latest ? (
                 <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-12">
                     <p className="text-xs font-semibold text-gray-400 mb-2">MOST RECENT EVENT</p>
                     <Link to={`/tournaments/${latest.name}?region=${latest.region}`} className="text-2xl font-bold text-blue-400 hover:underline">
                         {latest.name.replace(/_/g, ' ')}
                     </Link>
                     <p className="text-gray-400 mt-1">{latest.total_teams} teams · ${latest.prize_pool.toLocaleString()} prize pool</p>
+                </div>
+            ) : (
+                <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-12">
+                    <Skeleton className="h-3 w-32 mb-3" />
+                    <Skeleton className="h-7 w-64 mb-2" />
+                    <Skeleton className="h-4 w-48" />
                 </div>
             )}
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { CHAPTERS } from '../constants/chapters'
+import Skeleton from '../components/Skeleton'
 
 interface TournamentCard {
     name: string
@@ -72,8 +73,6 @@ const Tournaments = () => {
         fetchTournaments()
     }, [])
 
-    if (loading) return <p className="flex jtext-center">Loading...</p>
-
     const filtered = tournaments.filter((t) => {
         const matchesSearch = t.name.toLowerCase().replace(/_/g, ' ').includes(query.toLowerCase())
         const matchesGamemode = gamemodeFilter.has(t.gamemode)
@@ -100,7 +99,6 @@ const Tournaments = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 className="border border-gray-600 focus:border-gray-400 bg-gray-900 px-3 py-2 rounded transition-colors outline-none mb-8 w-full max-w-md"
             />
-
             <div className="mb-8 flex flex-wrap justify-center items-center gap-4 text-sm">
                 <div className='flex flex-wrap justify-center items-center'>
                     <span className="font-semibold mr-2">Chapter:</span>
@@ -131,28 +129,35 @@ const Tournaments = () => {
                 </div>
             </div>
 
-            {sortedChapters.map((chapter) => (
-                <div key={chapter} className="w-full max-w-6xl mb-8">
-                    <h2 className="text-xl font-bold border-b border-gray-700 pb-2 mb-4">Chapter {chapter}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {byChapter.get(chapter)!.map((t) => {
-
-                            const defaultRegion = t.regions.includes('Global') ? 'Global' : t.regions.includes('NAE') ? 'NAE' : 'NAC'
-                            return (
-                                <Link
-                                    key={t.name}
-                                    to={`/tournaments/${t.name}?region=${defaultRegion}`}
-                                    className="border border-transparent hover:border-blue-400 bg-gray-800 rounded-lg p-4 transition-transform duration-200 hover:scale-105"
-                                >
-                                    <h3 className="text-lg font-semibold">{t.name.replace(/_/g, ' ')}</h3>
-                                    <p className="text-sm text-gray-400">{t.gamemode}</p>
-                                    <p className="text-sm text-gray-400">{t.start_date === t.end_date ? formatDate(t.start_date) : `${formatDate(t.start_date)} - ${formatDate(t.end_date)}`}</p>
-                                </Link>
-                            )
-                        })}
-                    </div>
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-6xl">
+                    {Array.from({ length: 9 }).map((_, i) => (
+                        <Skeleton key={i} className="h-28 w-full" />
+                    ))}
                 </div>
-            ))}
+            ) : (
+                sortedChapters.map((chapter) => (
+                    <div key={chapter} className="w-full max-w-6xl mb-8">
+                        <h2 className="text-xl font-bold border-b border-gray-700 pb-2 mb-4">Chapter {chapter}</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {byChapter.get(chapter)!.map((t) => {
+                                const defaultRegion = t.regions.includes('Global') ? 'Global' : t.regions.includes('NAE') ? 'NAE' : 'NAC'
+                                return (
+                                    <Link
+                                        key={t.name}
+                                        to={`/tournaments/${t.name}?region=${defaultRegion}`}
+                                        className="border border-transparent hover:border-blue-400 bg-gray-800 rounded-lg p-4 transition-transform duration-200 hover:scale-105"
+                                    >
+                                        <h3 className="text-lg font-semibold">{t.name.replace(/_/g, ' ')}</h3>
+                                        <p className="text-sm text-gray-400">{t.gamemode}</p>
+                                        <p className="text-sm text-gray-400">{t.start_date === t.end_date ? formatDate(t.start_date) : `${formatDate(t.start_date)} - ${formatDate(t.end_date)}`}</p>
+                                    </Link>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))
+            )}
         </div>
     )
 }

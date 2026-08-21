@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { formatDate } from '../utils/formatDate'
 import { LOGO_URLS } from '../constants/logos'
 
 interface TournamentInfo {
@@ -22,8 +23,6 @@ interface LeaderboardEntry {
     disqualified: boolean
     players: { liquipedia_id: string, display_name: string }[]
 }
-
-const formatDate = (dateStr: string): string => new Date(dateStr).toLocaleDateString()
 
 const TournamentPage = () => {
     const { tournamentName } = useParams<{ tournamentName: string }>()
@@ -93,16 +92,16 @@ const TournamentPage = () => {
     const displayName = tournamentName?.replace(/_/g, ' ')
 
     return (
-        <div className="flex flex-col min-[622px]:flex-row h-auto min-[622px]:h-screen overflow-x-hidden">
+        <div className="flex h-screen">
 
-            <div className="flex flex-col items-center w-full min-[622px]:w-72 shrink-0 border-r-0 min-[622px]:border-r border-b min-[622px]:border-b-0 border-gray-700 p-4 gap-1">
+            <div className="flex flex-col items-center w-72 shrink-0 border-r border-gray-700 p-4 gap-1">
                 <Link to="/tournaments" className="text-blue-400 hover:underline text-sm self-start mb-2">← Back to tournaments</Link>
 
                 <h1 className="text-2xl font-bold text-center mb-4">{displayName}</h1>
 
                 {logoUrl && <img src={logoUrl} alt={displayName} className="w-48 mb-4 rounded" />}
 
-                <div className="w-full max-w-xs mx-auto bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm items-center">
+                <div className="w-full bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
                     {info.start_date === info.end_date ? (
                         <p><span className="text-gray-400">Date:</span> {formatDate(info.start_date)}</p>
                     ) : (
@@ -131,7 +130,7 @@ const TournamentPage = () => {
                 </div>
             </div>
 
-            <div className="flex-1 w-full overflow-y-visible min-[622px]:overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6">
                 <table className="border-collapse border border-gray-700 text-sm mx-auto">
                     <thead>
                         <tr>
@@ -203,3 +202,4 @@ const TournamentPage = () => {
 }
 
 export default TournamentPage
+

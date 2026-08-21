@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { CHAPTERS } from '../constants/chapters'
+import { formatDate } from '../utils/formatDate'
 import Skeleton from '../components/Skeleton'
 
 interface TournamentCard {
@@ -11,13 +12,6 @@ interface TournamentCard {
     end_date: string
     regions: string[]
 }
-
-
-// sets any dates shown to whatever date format the user's device is set to
-const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString()
-}
-
 
 // figures out which chapter a tournament falls into based on its start date
 const getChapterForDate = (dateStr: string): number => {

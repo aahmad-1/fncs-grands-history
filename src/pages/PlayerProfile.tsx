@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { formatDate } from '../utils/formatDate'
 import type { RawPlacementPlayerRow, PlacementRow, TournamentSummary } from '../types/player'
 
-// sets any dates shown to whatever date format the user's device is set to
-const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString()
-}
 
 const rowLabels: Record<string, string> = {
     placement: 'Placement',
@@ -228,8 +225,8 @@ const PlayerProfile = () => {
     const rowDefinitions = getRowDefinitions().filter((r) => r.alwaysShow || r.show)
 
     return (
-        <div className="flex h-screen">
-            <div className="flex flex-col items-center w-64 shrink-0 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-hidden">
+        <div className="flex flex-col min-[678px]:flex-row h-auto min-[678px]:h-screen overflow-x-hidden">
+            <div className="flex flex-col items-center w-full min-[678px]:w-64 shrink-0 border-r-0 min-[678px]:border-r border-b min-[678px]:border-b-0 border-gray-700 p-4">
                 <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
                 <h1 className="text-2xl font-bold">{playerName}</h1>
                 <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
@@ -242,7 +239,7 @@ const PlayerProfile = () => {
                 <p>Total Earnings: ${Math.round(totalEarnings).toLocaleString()}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 w-full overflow-y-visible min-[678px]:overflow-y-auto p-6">
 
                 <button
                     onClick={() => setShowFilters(true)}
@@ -252,11 +249,11 @@ const PlayerProfile = () => {
                 </button>
 
                 <div
-                    className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${showFilters ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                    className={`fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300 ${showFilters ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                     onClick={() => setShowFilters(false)}
                 >
                     <div
-                        className={`fixed right-0 top-0 h-screen w-80 bg-gray-900 border-l border-gray-700 p-6 z-50 overflow-y-auto transition-transform duration-300 ${showFilters ? 'translate-x-0' : 'translate-x-full'}`}
+                        className={`fixed right-0 top-0 h-screen w-80 bg-gray-900 border-l border-gray-700 p-6 z-[70] overflow-y-auto transition-transform duration-300 ${showFilters ? 'translate-x-0' : 'translate-x-full'}`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center mb-6">
@@ -347,13 +344,17 @@ const PlayerProfile = () => {
 
                 <div className="overflow-x-auto">
                     {isHorizontal ? (
-                        <table className="border-collapse border border-gray-700 text-sm">
+                        <table className="border-separate border-spacing-0 text-sm border-t border-gray-700">
                             <tbody>
                                 {rowDefinitions.map((row) => (
                                     <tr key={row.key}>
-                                        <th className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0">{row.label}</th>
+                                        <th className="border-l border-r border-b border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0 z-10">
+                                            {row.label}
+                                        </th>
                                         {filteredPlacements.map((p) => (
-                                            <td key={p.tournament_name} className="border border-gray-700 px-3 py-2 whitespace-nowrap text-center">{row.render(p)}</td>
+                                            <td key={p.tournament_name} className="border-r border-b border-gray-700 px-3 py-2 whitespace-nowrap text-center">
+                                                {row.render(p)}
+                                            </td>
                                         ))}
                                     </tr>
                                 ))}

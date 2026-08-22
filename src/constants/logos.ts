@@ -12,7 +12,7 @@ export const LOGO_URLS: Record<string, string> = {
     'All_Star_Showdown': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/All_Star_Showdown_Logo.png',
     'C2S7': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C2S7_logo.webp',
     'C2S8': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C2S8_logo.webp',
-    'Grand Royale': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/Grand_Royale_logo.webp',
+    'Grand_Royale': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/Grand_Royale_logo.webp',
     'C3S1': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C3S1_logo.png',
     'C3S2': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C3S2_logo.png',
     'C3S3': 'https://qukspgqvudaxzsqvmknz.supabase.co/storage/v1/object/public/tournament-logos/C3S3_logo.png',

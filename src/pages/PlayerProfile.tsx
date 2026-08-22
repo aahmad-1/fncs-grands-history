@@ -242,7 +242,12 @@ const PlayerProfile = () => {
                 ) : (
                     <>
                         <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
-                        <h1 className="text-2xl font-bold">{playerName}</h1>
+                        <h1
+                            className="font-bold text-center w-full whitespace-nowrap"
+                            style={{ fontSize: `clamp(1rem, ${26 / playerName.length}rem, 1.875rem)` }}
+                        >
+                            {playerName}
+                        </h1>
                         <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
                         <p>Grands Qualified For: {eventsQualified}</p>
                         <p>Average Placement: {calculateAverage()}</p>

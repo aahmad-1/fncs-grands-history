@@ -14,7 +14,7 @@ function App() {
             <div className="sticky top-0 z-50 bg-gray-950/43 backdrop-blur-md">
                 <Navbar />
             </div>
-            <div className='overflow-x-hidden'>
+            <div className='overflow-x-hidden bg-gray-900 min-h-screen'>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/players" element={<Players />} />

@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { differentiateDisplayNames } from '../utils/differentiateDisplayNames'
 import Pagination from '../components/Pagination'
 import Skeleton from '../components/Skeleton'
+import { FaSortUp, FaSortDown } from '../constants/icons'
 
 interface RankingRow {
     liquipedia_id: string
@@ -17,16 +18,18 @@ interface RankingRow {
     total_earnings: number
 }
 
-type SortKey = keyof Omit<RankingRow, 'liquipedia_id' | 'display_name'>
+type SortableKey = keyof Omit<RankingRow, 'liquipedia_id' | 'display_name'> | 'display_name'
 
 const PAGE_SIZE = 25
 
 const Rankings = () => {
     const [rankings, setRankings] = useState<RankingRow[]>([])
     const [loading, setLoading] = useState<boolean>(true)
-    const [sortKey, setSortKey] = useState<SortKey>('total_earnings')
+    const [sortKey, setSortKey] = useState<SortableKey>('total_earnings')
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
     const [minQualified, setMinQualified] = useState<number>(1)
     const [page, setPage] = useState<number>(1)
+    const [minQualifiedInput, setMinQualifiedInput] = useState<string>('1')
 
     useEffect(() => {
         const fetchRankings = async () => {
@@ -58,16 +61,31 @@ const Rankings = () => {
         fetchRankings()
     }, [])
 
-    const filtered = rankings.filter((r) => r.events_qualified >= minQualified)
-    // avg_placement is the only stat where lower is better, everything else is descending (higher is better)
-    const sorted = [...filtered].sort((a, b) =>
-        sortKey === 'avg_placement' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
-    )
+    // clicking the same column flips its direction, clicking a new column always starts on descending
+    const handleSort = (key: SortableKey) => {
+        if (key === sortKey) {
+            setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'))
+        } else {
+            setSortKey(key)
+            setSortDirection('desc')
+        }
+        setPage(1)
+    }
+
+    const filtered = rankings.filter((r) => r.events_qualified >= (Number(minQualifiedInput) || 1))
+
+    // display_name is sorted alphabetically, everything else is sorted numerically, direction flips whichever way the comparator result gets negated
+    const sorted = [...filtered].sort((a, b) => {
+        const cmp = sortKey === 'display_name'
+            ? a.display_name.localeCompare(b.display_name)
+            : a[sortKey] - b[sortKey]
+        return sortDirection === 'desc' ? -cmp : cmp
+    })
 
     const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
     const pageRows = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-    const columns: { key: SortKey, label: string }[] = [
+    const columns: { key: SortableKey, label: string }[] = [
         { key: 'wins', label: 'Wins' },
         { key: 'top3', label: 'Top 3' },
         { key: 'top5', label: 'Top 5' },
@@ -76,6 +94,17 @@ const Rankings = () => {
         { key: 'avg_placement', label: 'Average Placement' },
         { key: 'total_earnings', label: 'Total Earnings' }
     ]
+
+    // up arrow lit up means descending, down arrow lit up means ascending, both stay dark if this column isnt the active sort
+    const SortIcon = ({ column }: { column: SortableKey }) => {
+        const isActive = sortKey === column
+        return (
+            <span className="inline-flex flex-col -space-y-[14px] ml-1 align-middle">
+                <FaSortUp className={isActive && sortDirection === 'desc' ? 'text-white' : 'text-gray-600'} />
+                <FaSortDown className={isActive && sortDirection === 'asc' ? 'text-white' : 'text-gray-600'} />
+            </span>
+        )
+    }
 
     return (
         <div className="p-6 flex flex-col items-center">
@@ -86,8 +115,9 @@ const Rankings = () => {
                 <input
                     type="number"
                     min={1}
-                    value={minQualified}
-                    onChange={(e) => { setMinQualified(Number(e.target.value)); setPage(1) }}
+                    value={minQualifiedInput}
+                    onChange={(e) => { setMinQualifiedInput(e.target.value); setPage(1) }}
+                    onBlur={() => { if (minQualifiedInput === '') setMinQualifiedInput('1') }}
                     className="w-16 bg-gray-800 border border-gray-700 px-1"
                 />
             </label>
@@ -105,14 +135,19 @@ const Rankings = () => {
                             <thead>
                                 <tr>
                                     <th className="border border-gray-700 bg-gray-800 px-3 py-2">#</th>
-                                    <th className="border border-gray-700 bg-gray-800 px-3 py-2">Player</th>
+                                    <th
+                                        onClick={() => handleSort('display_name')}
+                                        className="border border-gray-700 bg-gray-800 hover:bg-gray-700 hover:text-white text-gray-400 px-3 py-2 cursor-pointer transition-colors"
+                                    >
+                                        Player <SortIcon column="display_name" />
+                                    </th>
                                     {columns.map((col) => (
                                         <th
                                             key={col.key}
-                                            onClick={() => { setSortKey(col.key); setPage(1) }}
-                                            className={`border border-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap ${sortKey === col.key ? 'bg-yellow-700 text-white' : 'bg-gray-800 text-gray-400'}`}
+                                            onClick={() => handleSort(col.key)}
+                                            className={`border border-gray-700 bg-gray-800 hover:bg-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap transition-colors align-middle ${sortKey === col.key ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}
                                         >
-                                            {col.label}
+                                            {col.label} <SortIcon column={col.key} />
                                         </th>
                                     ))}
                                 </tr>

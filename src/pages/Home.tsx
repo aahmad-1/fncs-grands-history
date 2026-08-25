@@ -2,10 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Skeleton from '../components/Skeleton'
-import { GoDatabase } from 'react-icons/go'
-import { FaRegUser } from 'react-icons/fa'
-import { MdOutlineLeaderboard } from 'react-icons/md'
-import { TbDatabaseImport } from 'react-icons/tb'
+import { GoDatabase, FaRegUser, MdOutlineLeaderboard, TbDatabaseImport } from '../constants/icons'
 
 interface RegionData {
     region: string

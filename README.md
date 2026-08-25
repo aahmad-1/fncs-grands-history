@@ -2,8 +2,7 @@
 
 A full-stack site tracking every FNCS Grand Finals iteration in Fortnite competitive history, including every region it ran in, and every player that's qualified for a grand finals.
 
-**Live site:** 
-
+**Live site:** [fncshistory.pages.dev](https://fncshistory.pages.dev/)
 ## Overview
 
 FNCS Grands History scrapes tournament results directly from Liquipedia, normalizes them into a relational database, and displays them through a searchable and filterable web app. It covers every Grand Finals from Season X to the latest one (C7M2 as of writing this), across every possible region, with full player profiles, tournament pages, and a sortable player rankings leaderboard. Updated after every FNCS too!
@@ -31,16 +30,40 @@ FNCS carries heavy weight in competitive Fortnite's ongoing GOAT (greatest of al
 
 ## Screenshots
 
-<table>
+<table style="border: none; border-collapse: collapse;">
   <tr>
-    <td><img src="docs/screenshots/home.png" width="400"></td>
-    <td><img src="docs/screenshots/players.png" width="400"></td>
-    <td><img src="docs/screenshots/player-profile.png" width="400"></td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/home.png" target="_blank">
+        <img src="docs/screenshots/home.png" width="400">
+      </a>
+    </td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/players.png" target="_blank">
+        <img src="docs/screenshots/players.png" width="400">
+      </a>
+    </td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/player-profile.png" target="_blank">
+        <img src="docs/screenshots/player-profile.png" width="400">
+      </a>
+    </td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/tournaments.png" width="400"></td>
-    <td><img src="docs/screenshots/tournament-page.png" width="400"></td>
-    <td><img src="docs/screenshots/rankings.png" width="400"></td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/tournaments.png" target="_blank">
+        <img src="docs/screenshots/tournaments.png" width="400">
+      </a>
+    </td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/tournament-page.png" target="_blank">
+        <img src="docs/screenshots/tournament-page.png" width="400">
+      </a>
+    </td>
+    <td style="border: none;">
+      <a href="https://raw.githubusercontent.com/aahmad-1/fncs-grands-history/refs/heads/main/docs/screenshots/rankings.png" target="_blank">
+        <img src="docs/screenshots/rankings.png" width="400">
+      </a>
+    </td>
   </tr>
 </table>
 

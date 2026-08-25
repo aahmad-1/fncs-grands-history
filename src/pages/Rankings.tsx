@@ -27,7 +27,6 @@ const Rankings = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [sortKey, setSortKey] = useState<SortableKey>('total_earnings')
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-    const [minQualified, setMinQualified] = useState<number>(1)
     const [page, setPage] = useState<number>(1)
     const [minQualifiedInput, setMinQualifiedInput] = useState<string>('1')
 

@@ -19,13 +19,18 @@ const getChapterForDate = (dateStr: string): number => {
     return found ? found.chapter : 0
 }
 
+// pulling the list of chapter numbers straight from chapters.ts instead of hardcoding it here too
+// this way when a new chapter releases, only have to add it in one place (chapters.ts) and this page picks it up automatically
+const ALL_CHAPTERS = CHAPTERS.map((c) => c.chapter)
+
 const Tournaments = () => {
     const [query, setQuery] = useState<string>('')
     const [tournaments, setTournaments] = useState<TournamentCard[]>([])
     const [loading, setLoading] = useState<boolean>(true)
 
     // foilters
-    const [chapterFilter, setChapterFilter] = useState<number | null>(null)
+    const [selectedChapters, setSelectedChapters] = useState<Set<number>>(new Set(ALL_CHAPTERS))
+    const [showChapterDropdown, setShowChapterDropdown] = useState(false)
     const [gamemodeFilter, setGamemodeFilter] = useState<Set<string>>(
         new Set(['Solos', 'Duos', 'Trios', 'Squads'])
     )
@@ -67,10 +72,60 @@ const Tournaments = () => {
         fetchTournaments()
     }, [])
 
+    useEffect(() => {
+        if (!showChapterDropdown) return
+        const closeOnOutsideClick = () => setShowChapterDropdown(false)
+        document.addEventListener('click', closeOnOutsideClick)
+        return () => document.removeEventListener('click', closeOnOutsideClick)
+    }, [showChapterDropdown])
+
+    // checking/unchecking one chapter
+    const toggleChapter = (chapter: number) => {
+        const updated = new Set(selectedChapters)
+        updated.has(chapter) ? updated.delete(chapter) : updated.add(chapter)
+        setSelectedChapters(updated)
+    }
+
+    // "All" fills in every chapter if anything is currently missing, or clears everything if all are already checked
+    const toggleAll = () => {
+        setSelectedChapters(selectedChapters.size === ALL_CHAPTERS.length ? new Set() : new Set(ALL_CHAPTERS))
+    }
+
+    // groups consecutive runs of 3 or more chapters into a dash range, keeps shorter runs as plain comma separated numbers
+    // ex: 1,2,3 becomes "1-3", but 1,2 stays "1, 2", and 1,2,3,5 becomes "1-3, 5"
+    const formatChapterPreview = (): string => {
+        if (selectedChapters.size === ALL_CHAPTERS.length) return 'All'
+        if (selectedChapters.size === 0) return 'None'
+
+        const sorted = Array.from(selectedChapters).sort((a, b) => a - b)
+        const parts: string[] = []
+        let runStart = sorted[0]
+        let runEnd = sorted[0]
+
+        const flushRun = () => {
+            const length = runEnd - runStart + 1
+            if (length >= 3) parts.push(`${runStart}-${runEnd}`)
+            else for (let n = runStart; n <= runEnd; n++) parts.push(String(n))
+        }
+
+        for (let i = 1; i < sorted.length; i++) {
+            if (sorted[i] === runEnd + 1) {
+                runEnd = sorted[i]
+            } else {
+                flushRun()
+                runStart = sorted[i]
+                runEnd = sorted[i]
+            }
+        }
+        flushRun()
+
+        return parts.join(', ')
+    }
+
     const filtered = tournaments.filter((t) => {
         const matchesSearch = t.name.toLowerCase().replace(/_/g, ' ').includes(query.toLowerCase())
         const matchesGamemode = gamemodeFilter.has(t.gamemode)
-        const matchesChapter = chapterFilter === null || getChapterForDate(t.start_date) === chapterFilter
+        const matchesChapter = selectedChapters.has(getChapterForDate(t.start_date))
         return matchesSearch && matchesGamemode && matchesChapter
     })
 
@@ -94,17 +149,31 @@ const Tournaments = () => {
                 className="border border-gray-600 focus:border-gray-400 bg-gray-900 px-3 py-2 rounded transition-colors outline-none mb-8 w-full max-w-md"
             />
             <div className="mb-8 flex flex-wrap justify-center items-center gap-4 text-sm">
-                <div className='flex flex-wrap justify-center items-center'>
-                    <span className="font-semibold mr-2">Chapter:</span>
-                    <select
-                        value={chapterFilter ?? ''}
-                        onChange={(e) => setChapterFilter(e.target.value === '' ? null : Number(e.target.value))}
-                        className="bg-gray-800 border border-gray-700 px-2 py-1 rounded"
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        onClick={() => setShowChapterDropdown(!showChapterDropdown)}
+                        className="bg-gray-800 border border-gray-700 px-3 py-1.5 rounded flex items-center gap-2 text-sm"
                     >
-                        <option value="">All</option>
-                        {[1, 2, 3, 4, 5, 6, 7].map((c) => <option key={c} value={c}>Chapter {c}</option>)}
-                    </select>
+                        <span className="font-semibold">Chapter:</span>
+                        <span>{formatChapterPreview()}</span>
+                    </button>
+
+                    <div
+                        className={`absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-20 origin-top transition-all duration-150 ${showChapterDropdown ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+                    >
+                        <label className="flex items-center gap-2 px-3 py-2 hover:bg-gray-800 cursor-pointer border-b border-gray-700">
+                            <input type="checkbox" checked={selectedChapters.size === ALL_CHAPTERS.length} onChange={toggleAll} />
+                            <span className="text-sm font-semibold">All</span>
+                        </label>
+                        {ALL_CHAPTERS.map((c) => (
+                            <label key={c} className="flex items-center gap-2 px-3 py-2 hover:bg-gray-800 cursor-pointer">
+                                <input type="checkbox" checked={selectedChapters.has(c)} onChange={() => toggleChapter(c)} />
+                                <span className="text-sm">Chapter {c}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
+
                 <div className='flex flex-wrap justify-center'>
                     <span className="font-semibold mr-2">Gamemode:</span>
                     {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (

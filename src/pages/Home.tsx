@@ -166,7 +166,7 @@ const Home = () => {
                             <TbDatabaseImport size={18} />
                         </div>
                         <h3 className="text-sm font-semibold text-white mb-1">Data Source</h3>
-                        <p className="text-sm text-gray-400 leading-6">Player results and earnings sourced from Liquipedia's FNCS archives.</p>
+                        <p className="text-sm text-gray-400 leading-6">Player results and earnings sourced from Liquipedia.</p>
                     </div>
                 </div>
 
@@ -221,7 +221,7 @@ const Home = () => {
                             onMouseLeave={stopAutoScroll}
                         >
                             <table className="w-full text-sm">
-                                <thead className="sticky top-0 bg-gray-900">
+                                <thead className="sticky top-0 bg-gray-700">
                                     <tr>
                                         <th className="text-left px-2 py-1 text-gray-400 font-normal">#</th>
                                         <th className="text-left px-2 py-1 text-gray-400 font-normal">Players</th>

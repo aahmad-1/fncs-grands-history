@@ -171,7 +171,7 @@ const TournamentPage = () => {
                                 <td className="border border-gray-700 px-2 py-2 text-center">
                                     {row.disqualified ? 'DQ' : row.placement}
                                 </td>
-                                <td className="border border-gray-700 px-2 py-2 text-center break-words overflow-wrap-anywhere max-w-[100px] min-[650px]:max-w-[400px]">
+                                <td className="border border-gray-700 px-2 py-2 text-center break-words overflow-wrap-anywhere">
                                     {row.players.map((p, i) => (
                                         <span key={p.liquipedia_id}>
                                             <Link to={`/players/${encodeURIComponent(p.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">

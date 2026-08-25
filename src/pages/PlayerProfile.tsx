@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { formatDate } from '../utils/formatDate'
 import type { RawPlacementPlayerRow, PlacementRow, TournamentSummary } from '../types/player'
 import Skeleton from '../components/Skeleton'
+import { MdSportsEsports, FaTrophy, LuColumns3, LuRows3, FaRegCalendarAlt, MdSwapVert } from '../constants/icons'
 
 
 const rowLabels: Record<string, string> = {
@@ -39,7 +40,7 @@ const PlayerProfile = () => {
     const [dateFrom, setDateFrom] = useState<string>('')
     const [dateTo, setDateTo] = useState<string>('')
     const [resetDateCounter, setResetDateCounter] = useState(0)
-    
+
 
     useEffect(() => {
         const fetchPlayerData = async () => {
@@ -231,13 +232,7 @@ const PlayerProfile = () => {
                         <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
                         <Skeleton className="h-8 w-40 mb-4" /> 
                         <Skeleton className="w-32 h-32 rounded mb-2" />
-                        <Skeleton className="h-4 w-36 mb-2" />
-                        <Skeleton className="h-4 w-40 mb-2" />
-                        <Skeleton className="h-4 w-32 mb-2" />
-                        <Skeleton className="h-4 w-32 mb-2" />
-                        <Skeleton className="h-4 w-32 mb-2" />
-                        <Skeleton className="h-4 w-32 mb-2" />
-                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="w-full h-56 rounded-lg" />
                     </>
                 ) : (
                     <>
@@ -249,13 +244,17 @@ const PlayerProfile = () => {
                             {playerName}
                         </h1>
                         <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
-                        <p>Grands Qualified For: {eventsQualified}</p>
-                        <p>Average Placement: {calculateAverage()}</p>
-                        <p>Average Solos: {calculateAverage('Solos')}</p>
-                        <p>Average Duos: {calculateAverage('Duos')}</p>
-                        <p>Average Trios: {calculateAverage('Trios')}</p>
-                        <p>Average Squads: {calculateAverage('Squads')}</p>
-                        <p>Total Earnings: ${Math.round(totalEarnings).toLocaleString()}</p>
+
+                        {/* styled infobox card, same treatment as the tournament page sidebar */}
+                        <div className="w-full bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
+                            <p><span className="text-gray-400">Grands Qualified For:</span> {eventsQualified}</p>
+                            <p><span className="text-gray-400">Average Placement:</span> {calculateAverage()}</p>
+                            <p><span className="text-gray-400">Average Solos:</span> {calculateAverage('Solos')}</p>
+                            <p><span className="text-gray-400">Average Duos:</span> {calculateAverage('Duos')}</p>
+                            <p><span className="text-gray-400">Average Trios:</span> {calculateAverage('Trios')}</p>
+                            <p><span className="text-gray-400">Average Squads:</span> {calculateAverage('Squads')}</p>
+                            <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Total Earnings:</span> ${Math.round(totalEarnings).toLocaleString()}</p>
+                        </div>
                     </>
                 )}
 
@@ -284,9 +283,11 @@ const PlayerProfile = () => {
                         </div>
 
                         <div className="mb-6">
-                            <p className="text-xs font-semibold text-gray-400 mb-2">GAMEMODE</p>
+                            <p className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                                <MdSportsEsports /> GAMEMODE
+                            </p>
                             {['Solos', 'Duos', 'Trios', 'Squads'].map((mode) => (
-                                <label key={mode} className="block mb-1">
+                                <label key={mode} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-800 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         checked={gamemodeFilter.has(mode)}
@@ -295,63 +296,79 @@ const PlayerProfile = () => {
                                             updated.has(mode) ? updated.delete(mode) : updated.add(mode)
                                             setGamemodeFilter(updated)
                                         }}
-                                    />{' '}{mode}
+                                    />
+                                    <span className="text-sm">{mode}</span>
                                 </label>
                             ))}
                         </div>
 
                         <div className="mb-6">
-                            <p className="text-xs font-semibold text-gray-400 mb-2">PLACEMENTS</p>
-                            <label className="block mb-2">
-                                <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />{' '}
-                                Qualified for only
+                            <p className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                                <FaTrophy /> PLACEMENTS
+                            </p>
+                            <label className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-800 cursor-pointer mb-1">
+                                <input type="checkbox" checked={qualifiedOnly} onChange={(e) => setQualifiedOnly(e.target.checked)} />
+                                <span className="text-sm">Qualified for only</span>
                             </label>
-                            <label className="block">
-                                Min placement:{' '}
+                            <label className="flex items-center gap-2 rounded-lg px-2 py-1.5">
+                                <span className="text-sm">Min placement:</span>
                                 <input
                                     type="number"
                                     value={minPlacement}
                                     onChange={(e) => setMinPlacement(e.target.value)}
-                                    className="w-16 bg-gray-800 border border-gray-700 px-1 ml-1"
+                                    className="w-16 bg-gray-800 border border-gray-700 px-1"
                                 />
                             </label>
                         </div>
 
                         <div className="mb-6">
-                            <p className="text-xs font-semibold text-gray-400 mb-2">{isHorizontal ? 'ROWS' : 'COLUMNS'}</p>
+                            <p className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                                {isHorizontal ? <LuColumns3 /> : <LuRows3 />} {isHorizontal ? 'ROWS' : 'COLUMNS'}
+                            </p>
                             {Object.entries(visibleRows).map(([key, value]) => (
-                                <label key={key} className="block mb-1">
+                                <label key={key} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-800 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         checked={value}
                                         onChange={() => setVisibleRows({ ...visibleRows, [key]: !value })}
-                                    />{' '}{rowLabels[key]}
+                                    />
+                                    <span className="text-sm">{rowLabels[key]}</span>
                                 </label>
                             ))}
                         </div>
 
                         <div className="mb-6">
-                            <p className="text-xs font-semibold text-gray-400 mb-2">DATE</p>
-                            <label className="block mb-2">From: <input
-                                key={`from-${resetDateCounter}`}
-                                type="date"
-                                value={dateFrom}
-                                onChange={(e) => setDateFrom(e.target.value)}
-                                className="bg-gray-800 border border-gray-700 px-1 ml-1"
-                            /></label>
-                            <label className="block mb-2">To: <input
-                                key={`to-${resetDateCounter}`}
-                                type="date"
-                                value={dateTo}
-                                onChange={(e) => setDateTo(e.target.value)}
-                                className="bg-gray-800 border border-gray-700 px-1 ml-1"
-                            /></label>
-                            <button onClick={() => { setDateFrom(''); setDateTo(''); setResetDateCounter(resetDateCounter + 1) }} className="bg-gray-800 border border-gray-700 px-2 py-1 rounded text-xs">Reset dates</button>
+                            <p className="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-2">
+                                <FaRegCalendarAlt /> DATE
+                            </p>
+                            <label className="flex items-center gap-2 px-2 py-1 mb-2">
+                                <span className="text-sm">From:</span>
+                                <input
+                                    key={`from-${resetDateCounter}`}
+                                    type="date"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700 px-1"
+                                />
+                            </label>
+                            <label className="flex items-center gap-2 px-2 py-1 mb-2">
+                                <span className="text-sm">To:</span>
+                                <input
+                                    key={`to-${resetDateCounter}`}
+                                    type="date"
+                                    value={dateTo}
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700 px-1"
+                                />
+                            </label>
+                            <button onClick={() => { setDateFrom(''); setDateTo(''); setResetDateCounter(resetDateCounter + 1) }} className="bg-gray-800 border border-gray-700 px-2 py-1 rounded text-xs ml-2">Reset dates</button>
                         </div>
 
                         <div>
-                            <label className="flex items-center gap-2">
-                                <span className="text-xs font-semibold text-gray-400">ORIENTATION</span>
+                            <label className="flex items-center gap-2 px-2 py-1.5">
+                                <span className="text-xs font-semibold text-gray-400 flex items-center gap-2">
+                                    <MdSwapVert /> ORIENTATION
+                                </span>
                                 <button
                                     onClick={() => setIsHorizontal(!isHorizontal)}
                                     className="bg-gray-800 border border-gray-700 px-3 py-1 rounded text-sm"

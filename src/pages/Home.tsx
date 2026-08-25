@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import Skeleton from '../components/Skeleton'
+import { GoDatabase } from 'react-icons/go'
+import { FaRegUser } from 'react-icons/fa'
+import { MdOutlineLeaderboard } from 'react-icons/md'
+import { TbDatabaseImport } from 'react-icons/tb'
 
 interface RegionData {
     region: string
-    total_teams: number
+    gamemode: number
     prize_pool: number
 }
 
@@ -25,6 +29,8 @@ const Home = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const animationFrameRef = useRef<number | undefined>(undefined)
 
+    const navigate = useNavigate()
+
     useEffect(() => {
         const fetchLatest = async () => {
             // find the most recent tournament by date first, regardless of region
@@ -41,7 +47,7 @@ const Home = () => {
             // and also keep each regions own total_teams/prize_pool so the card can update when the dropdown changes
             const { data: allRegions } = await supabase
                 .from('tournaments')
-                .select('region, total_teams, prize_pool')
+                .select('region, gamemode, prize_pool')
                 .eq('name', latestByDate.name)
 
             if (!allRegions || allRegions.length === 0) return
@@ -89,14 +95,18 @@ const Home = () => {
         fetchLeaderboardPreview()
     }, [latestName, selectedRegion])
 
+    const scrollPositionRef = useRef(0)
     // slowly auto scrolls the leaderboard preview while hovering, loops back to top instead of stopping
     const startAutoScroll = () => {
         const el = scrollContainerRef.current
         if (!el) return
 
         const step = () => {
-            el.scrollTop += 0.34
-            if (el.scrollTop >= el.scrollHeight - el.clientHeight) el.scrollTop = 0
+            scrollPositionRef.current += 0.3
+            if (scrollPositionRef.current >= el.scrollHeight - el.clientHeight) {
+                scrollPositionRef.current = 0
+            }
+            el.scrollTop = scrollPositionRef.current
             animationFrameRef.current = requestAnimationFrame(step)
         }
         animationFrameRef.current = requestAnimationFrame(step)
@@ -105,6 +115,7 @@ const Home = () => {
     // stops the scroll and snaps back to the top once the mouse leaves
     const stopAutoScroll = () => {
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+        scrollPositionRef.current = 0
         if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0
     }
 
@@ -128,27 +139,61 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                <div className="flex flex-col gap-4">
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-5">
-                        <h3 className="font-bold mb-1">Complete Records</h3>
-                        <p className="text-gray-400 text-sm">Every FNCS Grand Finals from Season X to today, across every region it ran in.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-5">
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 mb-3">
+                            <GoDatabase size={18} />
+                        </div>
+                        <h3 className="text-sm font-semibold text-white mb-1">Complete Records</h3>
+                        <p className="text-sm text-gray-400 leading-6">Every FNCS Grand Finals from Season X to today, across every region it ran in.</p>
                     </div>
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-5">
-                        <h3 className="font-bold mb-1">Player Profiles</h3>
-                        <p className="text-gray-400 text-sm">Full placement history, earnings, and teammates for every qualified player.</p>
+
+                    <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-5">
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 mb-3">
+                            <FaRegUser size={16} />
+                        </div>
+                        <h3 className="text-sm font-semibold text-white mb-1">Player Profiles</h3>
+                        <p className="text-sm text-gray-400 leading-6">Full placement history, earnings, and teammates for every qualified player.</p>
                     </div>
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-5">
-                        <h3 className="font-bold mb-1">Consistency Rankings</h3>
-                        <p className="text-gray-400 text-sm">Who's shown up the most, earned the most, and performed the most consistently.</p>
+
+                    <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-5">
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 mb-3">
+                            <MdOutlineLeaderboard size={18} />
+                        </div>
+                        <h3 className="text-sm font-semibold text-white mb-1">Consistency Rankings</h3>
+                        <p className="text-sm text-gray-400 leading-6">Who's shown up the most, earned the most, and performed the most consistently.</p>
                     </div>
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-5">
-                        <h3 className="font-bold mb-1">Data Source</h3>
-                        <p className="text-gray-400 text-sm">Player results and earnings sourced from Liquipedia's FNCS archives.</p>
+
+                    <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-5">
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 mb-3">
+                            <TbDatabaseImport size={18} />
+                        </div>
+                        <h3 className="text-sm font-semibold text-white mb-1">Data Source</h3>
+                        <p className="text-sm text-gray-400 leading-6">Player results and earnings sourced from Liquipedia's FNCS archives.</p>
                     </div>
                 </div>
 
-                {latestName && (
-                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 flex flex-col transition-transform duration-200 hover:scale-105 hover:border-blue-400 relative overflow-hidden">
+                {!latestName || latestLeaderboard.length === 0 ? (
+                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 flex flex-col">
+                        <div className="flex items-center justify-between mb-2">
+                            <p className="text-xs font-semibold text-gray-400 tracking-wide">MOST RECENT EVENT</p>
+                            <Skeleton className="h-6 w-16" />
+                        </div>
+                        <div className="mb-4">
+                            <Skeleton className="h-8 w-40 mb-2" />
+                            <Skeleton className="h-4 w-32" />
+                        </div>
+                        <div className="mt-auto flex flex-col gap-2">
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <Skeleton key={i} className="h-6 w-full" />
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                    onClick={() => navigate(`/tournaments/${latestName}?region=${selectedRegion}`)}
+                    className="bg-gray-800 border border-gray-700 rounded-lg p-6 flex flex-col transition-colors duration-200 hover:border-blue-400 relative overflow-hidden cursor-pointer"
+                    >
                         <div className="flex items-center justify-between mb-2">
                             <p className="text-xs font-semibold text-gray-400 tracking-wide">MOST RECENT EVENT</p>
                             {latestRegions.length > 1 && (
@@ -156,6 +201,7 @@ const Home = () => {
                                     value={selectedRegion}
                                     onChange={(e) => setSelectedRegion(e.target.value)}
                                     onClick={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
                                     className="bg-gray-900 border border-gray-700 px-2 py-0.5 rounded text-xs"
                                 >
                                     {latestRegions.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -163,17 +209,17 @@ const Home = () => {
                             )}
                         </div>
 
-                        <Link to={`/tournaments/${latestName}?region=${selectedRegion}`} className="block mb-4">
+                        <div className="mb-4">
                             <h2 className="text-3xl font-bold text-blue-400 mb-1">{latestName.replace(/_/g, ' ')}</h2>
                             <p className="text-gray-400">
-                                {currentRegionData?.total_teams} teams · ${currentRegionData?.prize_pool.toLocaleString()}
+                                {currentRegionData?.gamemode} · ${currentRegionData?.prize_pool.toLocaleString()}
                             </p>
-                        </Link>
+                        </div>
 
                         {/* real auto scroll instead of a css transform, loops back to top and only moves while hovering */}
                         <div
                             ref={scrollContainerRef}
-                            className="h-64 overflow-y-hidden relative"
+                            className="mt-auto h-64 overflow-y-hidden relative"
                             onMouseEnter={startAutoScroll}
                             onMouseLeave={stopAutoScroll}
                         >

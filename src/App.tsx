@@ -7,11 +7,12 @@ import Tournaments from './pages/Tournaments'
 import TournammentPage from './pages/TournamentPage'
 import Rankings from './pages/Rankings'
 import NotFound from './pages/NotFound'
-
+import ScrollbarTop from './components/ScrollbarTop'
 
 function App() {
     return (
         <BrowserRouter>
+            <ScrollbarTop />
             <div className="min-h-screen flex flex-col">
                 <div className="sticky top-0 z-50 bg-gray-950/43 backdrop-blur-md">
                     <Navbar />

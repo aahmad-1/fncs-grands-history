@@ -9,7 +9,7 @@ FNCS Grands History scrapes tournament results directly from Liquipedia, normali
 
 ## Why I Built This
 
-Sites like Fortnite Tracker and Liquipedia already track every FNCS grand finals leaderboard, but neither has a list of only the players who've actually qualified for one. Their player profiles don't filter down to just FNCS grands placements either, so there's no way to see at a glance which grands a player has played, and which they've missed, without hunting down every individual leaderboard yourself. Both sites can also feel slow and heavy for something this specific. This project exists to fix that by hosting one place focused entirely on FNCS grand finals history, fast to browse, and built to support the GOAT debate with the actual data behind it instead of scattered results.
+Sites like Fortnite Tracker and Liquipedia already track every FNCS grand finals leaderboard, but neither has a list of only the players who've actually qualified for one. Their player profiles don't filter down to just FNCS grands placements either, so there's no way to see quickly which grands a player has played, and which they've missed, without looking for every individual leaderboard yourself. Both sites can also feel slow and heavy for something this specific. This project exists to fix that by hosting one place focused entirely on FNCS grand finals history, fast to browse, and easy to navigate.
 
 ## What is FNCS?
 

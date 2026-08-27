@@ -8,6 +8,11 @@ import TournammentPage from './pages/TournamentPage'
 import Rankings from './pages/Rankings'
 import NotFound from './pages/NotFound'
 import ScrollbarTop from './components/ScrollbarTop'
+import HistoryIntro from './pages/HistoryIntro'
+import HistoryTerminology from './pages/HistoryTerminology'
+import HistoryFormat from './pages/HistoryFormat'
+import HistoryLimitations from './pages/HistoryLimitations'
+
 
 function App() {
     return (
@@ -26,6 +31,10 @@ function App() {
                         <Route path="/tournaments/:tournamentName" element={<TournammentPage />} />
                         <Route path="/rankings" element={<Rankings />} />
                         <Route path="*" element={<NotFound />} />
+                        <Route path="/history" element={<HistoryIntro />} />
+                        <Route path="/history/terminology" element={<HistoryTerminology />} />
+                        <Route path="/history/format" element={<HistoryFormat />} />
+                        <Route path="/history/limitations" element={<HistoryLimitations />} />
                     </Routes>
                 </div>
             </div>

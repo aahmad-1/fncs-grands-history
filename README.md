@@ -5,13 +5,15 @@ A full-stack site tracking every FNCS Grand Finals iteration in Fortnite competi
 **Live site:** [fncshistory.pages.dev](https://fncshistory.pages.dev/)
 ## Overview
 
-FNCS Grands History scrapes tournament results directly from Liquipedia, normalizes them into a relational database, and displays them through a searchable and filterable web app. It covers every Grand Finals from Season X to the latest one (C7M2 as of writing this), across every possible region, with full player profiles, tournament pages, and a sortable player rankings leaderboard. Updated after every FNCS too!
+FNCS Grands History scrapes tournament results directly from Liquipedia, normalizes them into a relational database, and displays them through a searchable and filterable web app. It covers every Grand Finals from Season X to the latest one (C7M2 as of writing this), across every possible region, with full player profiles, tournament pages, and a sortable player rankings leaderboard. Updated every FNCS!
+
+## Why I Built This
+
+Sites like Fortnite Tracker and Liquipedia already track every FNCS grand finals leaderboard, but neither has a list of only the players who've actually qualified for one. Their player profiles don't filter down to just FNCS grands placements either, so there's no way to see at a glance which grands a player has played, and which they've missed, without hunting down every individual leaderboard yourself. Both sites can also feel slow and heavy for something this specific. This project exists to fix that by hosting one place focused entirely on FNCS grand finals history, fast to browse, and built to support the GOAT debate with the actual data behind it instead of scattered results.
 
 ## What is FNCS?
 
-FNCS (Fortnite Champion Series) is a highest-stakes Fortnite tournament that first began in Season X. It's split across multiple regions (usually seven) and typically runs once per Fortnite season. Naming conventions have shifted over time: C2S3 refers to Chapter 2 Season 3, while C5M2 refers to Chapter 5 Major 2 (seasons started being called "majors" starting Chapter 4). Format, gamemodes, and tournament point systems have also changed across chapters, but every iteration has consisted of a set of qualifying rounds followed by a grand finals.
-
-FNCS carries heavy weight in competitive Fortnite's ongoing GOAT (greatest of all time) discussions, since grand finals wins and exceptional placements results can be legacy-defining. However, win totals alone don't tell the full story. The players with the most and second-most FNCS wins come from regions generally considered less competitive, and their totals aren't weighted the same in most GOAT conversations as a result. Other extraneous situations include some winners have also been carried by significantly better teammates, some tournament winners weren't even considered the best team going in (prior results had other favorites who simply didn't perform on the day), and the individual best player in a given tournament isn't always apart of the winning team. Overall, placement numbers alone aren't always the best metric when defining greatenss. The region, prior placements leading up to FNCS, landing spot (loot quality varies significantly by location each season), and in-match performance (a players match statistics) should all be factored in as well.
+FNCS (Fortnite Champion Series) is a high-stakes Fortnite tournament that first began in Season X. It's split across multiple regions (usually seven) and typically runs once per Fortnite season. FNCS carries heavy weight in competitive Fortnite's ongoing GOAT (greatest of all time) discussions, since grand finals wins and exceptional placement results can be legacy-defining. However, win totals alone don't tell the full story. Read more on the [History](https://fncshistory.pages.dev/history) page of FNCS Grands History.
 
 ## Limitations
 

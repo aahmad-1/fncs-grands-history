@@ -11,6 +11,7 @@ const Navbar = () => {
                 <Link to="/players" className={isActive('/players') ? 'text-white' : 'text-gray-400 hover:text-white transition-colors'}>Players</Link>
                 <Link to="/tournaments" className={isActive('/tournaments') ? 'text-white' : 'text-gray-400 hover:text-white transition-colors'}>Tournaments</Link>
                 <Link to="/rankings" className={isActive('/rankings') ? 'text-white' : 'text-gray-400 hover:text-white transition-colors'}>Rankings</Link>
+                <Link to="/history" className={isActive('/history') ? 'text-white' : 'text-gray-400 hover:text-white transition-colors'}>History</Link>
             </div>
         </nav>
     )

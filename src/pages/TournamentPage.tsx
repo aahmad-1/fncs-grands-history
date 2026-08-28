@@ -96,9 +96,9 @@ const TournamentPage = () => {
                     <Skeleton className="w-full max-w-72 h-56 rounded-lg" />
                 </div>
                 <div className="flex-1 w-full min-w-0 overflow-x-auto p-6 min-[650px]:overflow-y-auto">
-                    <div className="flex flex-col gap-2 items-center">
-                        {Array.from({ length: 12 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full max-w-2xl" />
+                    <div className="w-full max-w-[300px] min-[400px]:max-w-xl mx-auto rounded-xl overflow-hidden">
+                        {Array.from({ length: 25 }).map((_, i) => (
+                            <Skeleton key={i} className="h-10 w-full border-b border-gray-800 last:border-b-0" />
                         ))}
                     </div>
                 </div>
@@ -132,15 +132,15 @@ const TournamentPage = () => {
                         <p><span className="text-gray-400">Date:</span> {formatDate(info.start_date)}</p>
                     ) : (
                         <>
-                            <p><span className="text-gray-400">Start Date:</span> {formatDate(info.start_date)}</p>
-                            <p><span className="text-gray-400">End Date:</span> {formatDate(info.end_date)}</p>
+                            <p><span className="text-gray-400">Start Date:</span> <span className="text-white font-medium">{formatDate(info.start_date)}</span></p>
+                            <p><span className="text-gray-400">End Date:</span> <span className="text-white font-medium">{formatDate(info.end_date)}</span></p>
                         </>
                     )}
-                    <p><span className="text-gray-400">Total Teams:</span> {info.total_teams}</p>
-                    <p><span className="text-gray-400">Prize Pool:</span> ${info.prize_pool.toLocaleString()}</p>
-                    <p><span className="text-gray-400">Type:</span> {info.play_setting}</p>
-                    {info.region === 'Global' && <p><span className="text-gray-400">Location:</span> {info.location}</p>}
-                    {info.venue && <p><span className="text-gray-400">Venue:</span> {info.venue}</p>}
+                    <p><span className="text-gray-400">Total Teams:</span> <span className="text-white font-medium">{info.total_teams}</span></p>
+                    <p><span className="text-gray-400">Prize Pool:</span> <span className="text-white font-medium">${info.prize_pool.toLocaleString()}</span></p>
+                    <p><span className="text-gray-400">Type:</span> <span className="text-white font-medium">{info.play_setting}</span></p>
+                    {info.region === 'Global' && <p><span className="text-gray-400">Location:</span> <span className="text-white font-medium">{info.location}</span></p>}
+                    {info.venue && <p><span className="text-gray-400">Venue:</span> <span className="text-white font-medium">{info.venue}</span></p>}
                     
                     {/* // only show the region dropdown if this event actually ran in more than one region, otherwise just print it */}
                     {availableRegions.length > 1 ? (
@@ -151,27 +151,32 @@ const TournamentPage = () => {
                             </select>
                         </div>
                     ) : (
-                        <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Region:</span> {info.region}</p>
+                        <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Region:</span> <span className="text-white font-medium">{info.region}</span></p>
                     )}
                 </div>
             </div>
 
             <div className="flex-1 w-full min-w-0 overflow-x-auto p-6 min-[650px]:overflow-y-auto">
-                <table className="border-collapse border border-gray-700 text-sm mx-auto">
+                <table className="table-fixed w-full max-w-[300px] min-[400px]:max-w-xl border-separate border-spacing-0 border border-gray-800 rounded-xl overflow-hidden text-sm mx-auto">
+                    <colgroup>
+                        <col className="w-20" />
+                        <col />
+                        <col className="w-20" />
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th className="border border-gray-700 bg-gray-800 px-2 py-2 text-white">Placement</th>
-                            <th className="border border-gray-700 bg-gray-800 px-2 py-2 text-white">Players</th>
-                            <th className="border border-gray-700 bg-gray-800 px-2 py-2 text-white">Earnings</th>
+                            <th className="bg-gray-900 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-white font-semibold text-center">Placement</th>
+                            <th className="bg-gray-900 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-white font-semibold text-center">Players</th>
+                            <th className="bg-gray-900 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-white font-semibold text-center">Earnings</th>
                         </tr>
                     </thead>
                     <tbody>
                         {leaderboard.map((row) => (
-                            <tr key={row.placement}>
-                                <td className="border border-gray-700 px-2 py-2 text-center">
+                            <tr key={row.placement} className="bg-gray-800/60 hover:bg-gray-800 transition-colors">
+                                <td className="border-t border-gray-800 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-center text-gray-300">
                                     {row.disqualified ? 'DQ' : row.placement}
                                 </td>
-                                <td className="border border-gray-700 px-2 py-2 text-center break-words overflow-wrap-anywhere">
+                                <td className="border-t border-gray-800 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-center break-words overflow-wrap-anywhere">
                                     {row.players.map((p, i) => (
                                         <span key={p.liquipedia_id}>
                                             <Link to={`/players/${encodeURIComponent(p.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
@@ -181,7 +186,7 @@ const TournamentPage = () => {
                                         </span>
                                     ))}
                                 </td>
-                                <td className="border border-gray-700 px-2 py-2 text-center">${row.earnings.toLocaleString()}</td>
+                                <td className="border-t border-gray-800 px-2 py-2 min-[400px]:px-4 min-[400px]:py-3 text-center text-gray-300">${row.earnings.toLocaleString()}</td>
                             </tr>
                         ))}
                     </tbody>

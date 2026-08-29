@@ -121,61 +121,64 @@ const Rankings = () => {
                 />
             </label>
 
-            {loading ? (
-                <div className="w-full max-w-4xl flex flex-col gap-2">
-                    {Array.from({ length: 15 }).map((_, i) => (
-                        <Skeleton key={i} className="h-10 w-full" />
-                    ))}
-                </div>
-            ) : (
-                <>
-                    <div className="overflow-x-auto w-full mb-6">
-                        <table className="border-collapse border border-gray-700 text-sm mx-auto">
-                            <thead>
-                                <tr>
-                                    <th className="border border-gray-700 bg-gray-800 px-3 py-2">#</th>
+            <div className="w-fit max-w-full mx-auto rounded-xl border border-gray-800 overflow-hidden [-webkit-mask-image:-webkit-radial-gradient(white,black)]">
+                <div className="max-h-[80vh] overflow-auto">
+                    <table className="border-separate border-spacing-0 text-sm mx-auto">
+                        <thead>
+                            <tr>
+                                <th className="sticky top-0 z-10 bg-[#1a2332] px-3 py-2 font-semibold">#</th>
+                                <th
+                                    onClick={() => !loading && handleSort('display_name')}
+                                    className="sticky top-0 z-10 bg-[#1a2332] hover:bg-gray-700 hover:text-white text-gray-400 px-3 py-2 cursor-pointer transition-colors font-semibold"
+                                >
+                                    Player {!loading && <SortIcon column="display_name" />}
+                                </th>
+                                {columns.map((col) => (
                                     <th
-                                        onClick={() => handleSort('display_name')}
-                                        className="border border-gray-700 bg-gray-800 hover:bg-gray-700 hover:text-white text-gray-400 px-3 py-2 cursor-pointer transition-colors"
+                                        key={col.key}
+                                        onClick={() => !loading && handleSort(col.key)}
+                                        className={`sticky top-0 z-10 bg-[#1a2332] hover:bg-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap transition-colors align-middle font-semibold ${!loading && sortKey === col.key ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}
                                     >
-                                        Player <SortIcon column="display_name" />
+                                        {col.label} {!loading && <SortIcon column={col.key} />}
                                     </th>
-                                    {columns.map((col) => (
-                                        <th
-                                            key={col.key}
-                                            onClick={() => handleSort(col.key)}
-                                            className={`border border-gray-700 bg-gray-800 hover:bg-gray-700 px-3 py-2 cursor-pointer whitespace-nowrap transition-colors align-middle ${sortKey === col.key ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}
-                                        >
-                                            {col.label} <SortIcon column={col.key} />
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {pageRows.map((row, i) => (
-                                    <tr key={row.liquipedia_id}>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{(page - 1) * PAGE_SIZE + i + 1}</td>
-                                        <td className="border border-gray-700 px-3 py-2 whitespace-nowrap">
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading
+                                ? Array.from({ length: 15 }).map((_, i) => (
+                                    <tr key={i} className="bg-[#141e29]">
+                                        {Array.from({ length: 9 }).map((_, j) => (
+                                            <td key={j} className="border-t border-gray-800 px-3 py-2 text-center">
+                                                <Skeleton className="h-4 w-12 mx-auto" />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                                : pageRows.map((row, i) => (
+                                    <tr key={row.liquipedia_id} className="bg-[#141e29] hover:bg-gray-800 transition-colors">
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{(page - 1) * PAGE_SIZE + i + 1}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 whitespace-nowrap">
                                             <Link to={`/players/${encodeURIComponent(row.liquipedia_id.replace('/fortnite/', ''))}`} className="text-blue-400 hover:underline">
                                                 {row.display_name}
                                             </Link>
                                         </td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.wins}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top3}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top5}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.top10}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.events_qualified}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">{row.avg_placement}</td>
-                                        <td className="border border-gray-700 px-3 py-2 text-center">${row.total_earnings.toLocaleString()}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.wins}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.top3}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.top5}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.top10}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.events_qualified}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">{row.avg_placement}</td>
+                                        <td className="border-t border-gray-800 px-3 py-2 text-center">${row.total_earnings.toLocaleString()}</td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-                </>
-            )}
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            
         </div>
     )
 }

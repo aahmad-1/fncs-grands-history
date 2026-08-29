@@ -227,26 +227,30 @@ const PlayerProfile = () => {
     return (
         <div className="flex flex-col min-[678px]:flex-row h-auto min-[678px]:h-screen overflow-x-hidden">
             <div className="flex flex-col items-center w-full min-[678px]:w-64 shrink-0 border-r-0 min-[678px]:border-r border-b min-[678px]:border-b-0 border-gray-700 p-4">
-                {loading ? (
-                    <>
-                        <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
-                        <Skeleton className="h-8 w-40 mb-4" /> 
-                        <Skeleton className="w-32 h-32 rounded mb-2" />
-                        <Skeleton className="w-full max-w-72 mx-auto h-56 rounded-lg" />
-                    </>
-                ) : (
-                    <>
-                        <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
-                        <h1
-                            className="font-bold text-center w-full whitespace-nowrap"
-                            style={{ fontSize: `clamp(1rem, ${26 / playerName.length}rem, 1.875rem)` }}
-                        >
-                            {playerName}
-                        </h1>
-                        <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
+                <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
 
-                        {/* styled infobox card, same treatment as the tournament page sidebar */}
-                        <div className="w-full max-w-72 mx-auto bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
+                {loading ? (
+                    <Skeleton className="h-8 w-40 mb-4" />
+                ) : (
+                    <h1
+                        className="font-bold text-center w-full whitespace-nowrap"
+                        style={{ fontSize: `clamp(1rem, ${26 / playerName.length}rem, 1.875rem)` }}
+                    >
+                        {playerName}
+                    </h1>
+                )}
+
+                {loading ? (
+                    <Skeleton className="w-32 h-32 rounded mb-4" />
+                ) : (
+                    <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
+                )}
+
+                <div className="w-full max-w-72 mx-auto bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
+                    {loading ? (
+                        Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)
+                    ) : (
+                        <>
                             <p><span className="text-gray-400">Grands Qualified For:</span> <span className="text-white font-medium">{eventsQualified}</span></p>
                             <p><span className="text-gray-400">Average Placement:</span> <span className="text-white font-medium">{calculateAverage()}</span></p>
                             <p><span className="text-gray-400">Average Solos:</span> <span className="text-white font-medium">{calculateAverage('Solos')}</span></p>
@@ -254,9 +258,9 @@ const PlayerProfile = () => {
                             <p><span className="text-gray-400">Average Trios:</span> <span className="text-white font-medium">{calculateAverage('Trios')}</span></p>
                             <p><span className="text-gray-400">Average Squads:</span> <span className="text-white font-medium">{calculateAverage('Squads')}</span></p>
                             <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Total Earnings:</span> <span className="text-white font-medium">${Math.round(totalEarnings).toLocaleString()}</span></p>
-                        </div>
-                    </>
-                )}
+                        </>
+                    )}
+                </div>
 
             </div>
 
@@ -380,35 +384,38 @@ const PlayerProfile = () => {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="w-full max-w-3xl mx-auto rounded-xl overflow-hidden border border-gray-800">
-                        {Array.from({ length: 25 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full border-b border-gray-800 last:border-b-0" />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        {isHorizontal ? (
-                            <div className="max-h-[70vh] max-w-full overflow-auto rounded-xl border border-gray-800">
+                <div className="overflow-x-auto">
+                    {isHorizontal ? (
+                        <div className="max-w-full rounded-xl border border-gray-800 overflow-hidden [-webkit-mask-image:-webkit-radial-gradient(white,black)]">
+                            <div className="max-h-[80vh] overflow-auto">
                                 <table className="border-separate border-spacing-0 text-sm">
                                     <tbody>
                                         {rowDefinitions.map((row) => (
                                             <tr key={row.key}>
-                                                <th className="border-l border-r border-b border-gray-800 bg-[#1a2332] text-white font-semibold px-3 py-2 text-center sticky left-0 z-10">
+                                                <th className="border-l border-r border-gray-800 bg-[#1a2332] text-white font-semibold px-3 py-2 text-center sticky left-0 z-10">
                                                     {row.label}
                                                 </th>
-                                                {filteredPlacements.map((p) => (
-                                                    <td key={p.tournament_name} className="border-r border-b border-gray-800 bg-[#141e29] transition-colors px-3 py-2 whitespace-nowrap text-center">
-                                                        {row.render(p)}
-                                                    </td>
-                                                ))}
+                                                {loading
+                                                    ? Array.from({ length: 8 }).map((_, i) => (
+                                                        <td key={i} className="border-r border-gray-800 bg-[#141e29] px-3 py-2 text-center">
+                                                            <Skeleton className="h-4 w-16 mx-auto" />
+                                                        </td>
+                                                    ))
+                                                    : filteredPlacements.map((p) => (
+                                                        <td key={p.tournament_name} className="border-r border-gray-800 bg-[#141e29] transition-colors px-3 py-2 whitespace-nowrap text-center">
+                                                            {row.render(p)}
+                                                        </td>
+                                                    ))
+                                                }
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        ) : (
-                            <div className="max-h-[70vh] max-w-full w-fit mx-auto overflow-auto rounded-xl border border-gray-800">
+                        </div>
+                    ) : (
+                        <div className="w-fit max-w-full mx-auto rounded-xl border border-gray-800 overflow-hidden [-webkit-mask-image:-webkit-radial-gradient(white,black)]">
+                            <div className="max-h-[75vh] overflow-auto">
                                 <table className="border-separate border-spacing-0 text-sm mx-auto">
                                     <thead>
                                         <tr>
@@ -418,19 +425,30 @@ const PlayerProfile = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredPlacements.map((p) => (
-                                            <tr key={p.tournament_name} className="bg-[#141e29] transition-colors">
-                                                {rowDefinitions.map((row) => (
-                                                    <td key={row.key} className="border-t border-gray-800 px-4 py-3 whitespace-nowrap text-center">{row.render(p)}</td>
-                                                ))}
-                                            </tr>
-                                        ))}
+                                        {loading
+                                            ? Array.from({ length: 10 }).map((_, i) => (
+                                                <tr key={i} className="bg-[#141e29]">
+                                                    {rowDefinitions.map((row) => (
+                                                        <td key={row.key} className="border-t border-gray-800 px-4 py-3 text-center">
+                                                            <Skeleton className="h-4 w-16 mx-auto" />
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))
+                                            : filteredPlacements.map((p) => (
+                                                <tr key={p.tournament_name} className="bg-[#141e29] hover:bg-gray-800 transition-colors">
+                                                    {rowDefinitions.map((row) => (
+                                                        <td key={row.key} className="border-t border-gray-800 px-4 py-3 whitespace-nowrap text-center">{row.render(p)}</td>
+                                                    ))}
+                                                </tr>
+                                            ))
+                                        }
                                     </tbody>
                                 </table>
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -232,7 +232,7 @@ const PlayerProfile = () => {
                         <Link to="/players" className="block text-blue-400 hover:underline text-sm mb-4">← Back to search</Link>
                         <Skeleton className="h-8 w-40 mb-4" /> 
                         <Skeleton className="w-32 h-32 rounded mb-2" />
-                        <Skeleton className="w-full h-56 rounded-lg" />
+                        <Skeleton className="w-full max-w-72 mx-auto h-56 rounded-lg" />
                     </>
                 ) : (
                     <>
@@ -246,14 +246,14 @@ const PlayerProfile = () => {
                         <div className="w-32 h-32 bg-gray-800 rounded mb-4 flex items-center justify-center text-xs text-gray-500">No image</div>
 
                         {/* styled infobox card, same treatment as the tournament page sidebar */}
-                        <div className="w-full bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
-                            <p><span className="text-gray-400">Grands Qualified For:</span> {eventsQualified}</p>
-                            <p><span className="text-gray-400">Average Placement:</span> {calculateAverage()}</p>
-                            <p><span className="text-gray-400">Average Solos:</span> {calculateAverage('Solos')}</p>
-                            <p><span className="text-gray-400">Average Duos:</span> {calculateAverage('Duos')}</p>
-                            <p><span className="text-gray-400">Average Trios:</span> {calculateAverage('Trios')}</p>
-                            <p><span className="text-gray-400">Average Squads:</span> {calculateAverage('Squads')}</p>
-                            <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Total Earnings:</span> ${Math.round(totalEarnings).toLocaleString()}</p>
+                        <div className="w-full max-w-72 mx-auto bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
+                            <p><span className="text-gray-400">Grands Qualified For:</span> <span className="text-white font-medium">{eventsQualified}</span></p>
+                            <p><span className="text-gray-400">Average Placement:</span> <span className="text-white font-medium">{calculateAverage()}</span></p>
+                            <p><span className="text-gray-400">Average Solos:</span> <span className="text-white font-medium">{calculateAverage('Solos')}</span></p>
+                            <p><span className="text-gray-400">Average Duos:</span> <span className="text-white font-medium">{calculateAverage('Duos')}</span></p>
+                            <p><span className="text-gray-400">Average Trios:</span> <span className="text-white font-medium">{calculateAverage('Trios')}</span></p>
+                            <p><span className="text-gray-400">Average Squads:</span> <span className="text-white font-medium">{calculateAverage('Squads')}</span></p>
+                            <p className="pt-2 border-t border-gray-700 mt-2"><span className="text-gray-400">Total Earnings:</span> <span className="text-white font-medium">${Math.round(totalEarnings).toLocaleString()}</span></p>
                         </div>
                     </>
                 )}
@@ -381,49 +381,53 @@ const PlayerProfile = () => {
                 </div>
 
                 {loading ? (
-                    <div className="flex flex-col gap-2 items-center">
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 w-full max-w-3xl" />
+                    <div className="w-full max-w-3xl mx-auto rounded-xl overflow-hidden border border-gray-800">
+                        {Array.from({ length: 25 }).map((_, i) => (
+                            <Skeleton key={i} className="h-10 w-full border-b border-gray-800 last:border-b-0" />
                         ))}
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         {isHorizontal ? (
-                            <table className="border-separate border-spacing-0 text-sm border-t border-gray-700">
-                                <tbody>
-                                    {rowDefinitions.map((row) => (
-                                        <tr key={row.key}>
-                                            <th className="border-l border-r border-b border-gray-700 bg-gray-800 text-white px-3 py-2 text-center sticky left-0 z-10">
-                                                {row.label}
-                                            </th>
-                                            {filteredPlacements.map((p) => (
-                                                <td key={p.tournament_name} className="border-r border-b border-gray-700 px-3 py-2 whitespace-nowrap text-center">
-                                                    {row.render(p)}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <table className="mx-auto border-collapse border border-gray-700 text-sm">
-                                <thead>
-                                    <tr>
+                            <div className="max-h-[70vh] max-w-full overflow-auto rounded-xl border border-gray-800">
+                                <table className="border-separate border-spacing-0 text-sm">
+                                    <tbody>
                                         {rowDefinitions.map((row) => (
-                                            <th key={row.key} className="border border-gray-700 bg-gray-800 text-white px-3 py-2 text-center">{row.label}</th>
+                                            <tr key={row.key}>
+                                                <th className="border-l border-r border-b border-gray-800 bg-[#1a2332] text-white font-semibold px-3 py-2 text-center sticky left-0 z-10">
+                                                    {row.label}
+                                                </th>
+                                                {filteredPlacements.map((p) => (
+                                                    <td key={p.tournament_name} className="border-r border-b border-gray-800 bg-[#141e29] transition-colors px-3 py-2 whitespace-nowrap text-center">
+                                                        {row.render(p)}
+                                                    </td>
+                                                ))}
+                                            </tr>
                                         ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredPlacements.map((p) => (
-                                        <tr key={p.tournament_name}>
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="max-h-[70vh] max-w-full w-fit mx-auto overflow-auto rounded-xl border border-gray-800">
+                                <table className="border-separate border-spacing-0 text-sm mx-auto">
+                                    <thead>
+                                        <tr>
                                             {rowDefinitions.map((row) => (
-                                                <td key={row.key} className="border border-gray-700 px-3 py-2 whitespace-nowrap text-center">{row.render(p)}</td>
+                                                <th key={row.key} className="sticky top-0 z-10 bg-[#1a2332] px-4 py-3 text-white font-semibold text-center">{row.label}</th>
                                             ))}
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {filteredPlacements.map((p) => (
+                                            <tr key={p.tournament_name} className="bg-[#141e29] transition-colors">
+                                                {rowDefinitions.map((row) => (
+                                                    <td key={row.key} className="border-t border-gray-800 px-4 py-3 whitespace-nowrap text-center">{row.render(p)}</td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
                     </div>
                 )}

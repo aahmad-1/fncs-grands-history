@@ -129,7 +129,7 @@ const TournamentPage = () => {
 
                 <div className="w-full max-w-72 mx-auto bg-gray-800 rounded-lg p-4 flex flex-col gap-2 text-sm">
                     {info.start_date === info.end_date ? (
-                        <p><span className="text-gray-400">Date:</span> {formatDate(info.start_date)}</p>
+                        <p><span className="text-gray-400">Date:</span> <span className="text-white font-medium">{formatDate(info.start_date)}</span></p>
                     ) : (
                         <>
                             <p><span className="text-gray-400">Start Date:</span> <span className="text-white font-medium">{formatDate(info.start_date)}</span></p>
